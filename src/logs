@@ -1,0 +1,11 @@
+20-07-23 23:07:42PM - INFO - connectFlattrade.py:30 - Starting the token generation!
+20-07-23 23:07:43PM - INFO - connectFlattrade.py:34 - Success: Token generated
+20-07-23 23:07:43PM - INFO - connectFlattrade.py:42 - Setting the TODAYSTOKEN to the .env
+20-07-23 23:07:57PM - INFO - connectFlattrade.py:30 - Starting the token generation!
+20-07-23 23:08:09PM - INFO - connectFlattrade.py:34 - Success: Token generated
+20-07-23 23:08:09PM - INFO - connectFlattrade.py:42 - Setting the TODAYSTOKEN to the .env
+20-07-23 23:08:27PM - INFO - connectFlattrade.py:30 - Starting the token generation!
+20-07-23 23:08:32PM - INFO - connectFlattrade.py:34 - Success: Token generated
+20-07-23 23:08:32PM - INFO - connectFlattrade.py:42 - Setting the TODAYSTOKEN to the .env
+21-07-23 06:04:37AM - DEBUG - test.py:3 - Hi there
+21-07-23 06:06:05AM - DEBUG - test.py:3 - Hi there
