@@ -3,3 +3,365 @@
 21-07-23 16:51:09PM - INFO - connectFlattrade.py:27 - Starting the token generation!
 21-07-23 16:51:10PM - INFO - connectFlattrade.py:31 - Success: Token generated
 21-07-23 16:51:10PM - INFO - connectFlattrade.py:39 - Setting the TODAYSTOKEN to the .env
+21-07-23 19:37:55PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:37:55PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:37:55PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:37:55PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:37:55PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:37:55PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:37:55PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:37:55PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:37:55PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:37:55PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:37:55PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:37:55PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:37:55PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:37:55PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:37:55PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:37:55PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:37:55PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:37:55PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:37:55PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:40:13PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:40:13PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:40:13PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:40:13PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:40:13PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:40:13PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:40:13PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:40:13PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:40:13PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:40:13PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:40:13PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:40:13PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:40:13PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:40:13PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:40:13PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:40:13PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:40:13PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:40:13PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:40:13PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:40:13PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:40:13PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:40:13PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:42:01PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:42:01PM - INFO - FnOList.py:47 - Updating raw F&O equity list data to local storage
+21-07-23 19:42:01PM - INFO - FnOList.py:42 - Fetching raw F&O equity list data from local storage
+21-07-23 19:42:01PM - INFO - FnOList.py:51 - Editing raw NSE F&O euity list data
+21-07-23 19:42:01PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:43:00PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:46:06PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:46:06PM - ERROR - FnOList.py:43 - Unable to fetch data from NSE server!
+21-07-23 19:50:14PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:50:14PM - ERROR - FnOList.py:56 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:50:14PM - INFO - FnOList.py:47 - Fetching raw F&O equity list data from local storage
+21-07-23 19:50:14PM - INFO - FnOList.py:60 - Editing raw NSE F&O euity list data
+21-07-23 19:50:14PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:50:21PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:50:21PM - ERROR - FnOList.py:43 - Unable to fetch data from NSE server!
+21-07-23 19:50:21PM - ERROR - FnOList.py:56 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:50:21PM - INFO - FnOList.py:47 - Fetching raw F&O equity list data from local storage
+21-07-23 19:50:21PM - INFO - FnOList.py:60 - Editing raw NSE F&O euity list data
+21-07-23 19:50:21PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:50:24PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:50:24PM - ERROR - FnOList.py:43 - Unable to fetch data from NSE server!
+21-07-23 19:50:24PM - ERROR - FnOList.py:56 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:50:24PM - INFO - FnOList.py:47 - Fetching raw F&O equity list data from local storage
+21-07-23 19:50:24PM - INFO - FnOList.py:60 - Editing raw NSE F&O euity list data
+21-07-23 19:50:24PM - INFO - FnOList.py:28 - Updating edited F&O equity list
+21-07-23 19:51:14PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:51:14PM - ERROR - FnOList.py:43 - Unable to fetch data from NSE server!
+21-07-23 19:51:14PM - ERROR - FnOList.py:56 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:51:14PM - INFO - FnOList.py:47 - Fetching raw F&O equity list data from local storage
+21-07-23 19:52:28PM - INFO - FnOList.py:38 - Getting raw F&O equity list from NSE
+21-07-23 19:52:28PM - ERROR - FnOList.py:43 - Unable to fetch data from NSE server!
+21-07-23 19:52:28PM - ERROR - FnOList.py:62 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:52:28PM - ERROR - FnOList.py:53 - Unable to fetch data from local server!
+21-07-23 19:52:28PM - INFO - FnOList.py:66 - Editing raw NSE F&O euity list data
+21-07-23 19:54:43PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 19:54:43PM - ERROR - FnOList.py:46 - Unable to fetch data from NSE server!
+21-07-23 19:54:43PM - ERROR - FnOList.py:65 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:54:43PM - ERROR - FnOList.py:56 - Unable to fetch data from local server!
+21-07-23 19:54:43PM - ERROR - FnOList.py:82 - Unable to find any dataframe to edit
+21-07-23 19:54:43PM - ERROR - FnOList.py:32 - Unable to update edited F&O equity list data to local storage
+21-07-23 19:54:43PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 19:54:43PM - ERROR - FnOList.py:46 - Unable to fetch data from NSE server!
+21-07-23 19:54:43PM - ERROR - FnOList.py:65 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:54:43PM - ERROR - FnOList.py:56 - Unable to fetch data from local server!
+21-07-23 19:54:43PM - ERROR - FnOList.py:82 - Unable to find any dataframe to edit
+21-07-23 19:55:42PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 19:55:43PM - ERROR - FnOList.py:65 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:55:43PM - ERROR - FnOList.py:56 - Unable to fetch data from local server!
+21-07-23 19:55:43PM - ERROR - FnOList.py:82 - Unable to find any dataframe to edit
+21-07-23 19:55:43PM - ERROR - FnOList.py:32 - Unable to update edited F&O equity list data to local storage
+21-07-23 19:55:43PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 19:55:43PM - ERROR - FnOList.py:65 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:55:43PM - ERROR - FnOList.py:56 - Unable to fetch data from local server!
+21-07-23 19:55:43PM - ERROR - FnOList.py:82 - Unable to find any dataframe to edit
+21-07-23 19:55:46PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 19:55:46PM - ERROR - FnOList.py:65 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:55:46PM - ERROR - FnOList.py:56 - Unable to fetch data from local server!
+21-07-23 19:55:46PM - ERROR - FnOList.py:82 - Unable to find any dataframe to edit
+21-07-23 19:55:46PM - ERROR - FnOList.py:32 - Unable to update edited F&O equity list data to local storage
+21-07-23 19:55:46PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 19:55:46PM - ERROR - FnOList.py:65 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:55:46PM - ERROR - FnOList.py:56 - Unable to fetch data from local server!
+21-07-23 19:55:46PM - ERROR - FnOList.py:82 - Unable to find any dataframe to edit
+21-07-23 19:55:51PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 19:55:52PM - ERROR - FnOList.py:65 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:55:52PM - ERROR - FnOList.py:56 - Unable to fetch data from local server!
+21-07-23 19:55:52PM - ERROR - FnOList.py:82 - Unable to find any dataframe to edit
+21-07-23 19:55:52PM - ERROR - FnOList.py:32 - Unable to update edited F&O equity list data to local storage
+21-07-23 19:55:52PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 19:55:52PM - ERROR - FnOList.py:65 - Unable to update raw F&O equity list data to local storage
+21-07-23 19:55:52PM - ERROR - FnOList.py:56 - Unable to fetch data from local server!
+21-07-23 19:55:52PM - ERROR - FnOList.py:82 - Unable to find any dataframe to edit
+21-07-23 19:56:50PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 19:58:22PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 19:58:22PM - INFO - FnOList.py:63 - Updating raw F&O equity list data to local storage
+21-07-23 19:58:22PM - INFO - FnOList.py:53 - Fetching raw F&O equity list data from local storage
+21-07-23 19:58:22PM - INFO - FnOList.py:71 - Editing raw NSE F&O euity list data
+21-07-23 19:58:45PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 19:58:45PM - INFO - FnOList.py:63 - Updating raw F&O equity list data to local storage
+21-07-23 19:58:45PM - INFO - FnOList.py:53 - Fetching raw F&O equity list data from local storage
+21-07-23 19:58:45PM - INFO - FnOList.py:71 - Editing raw NSE F&O euity list data
+21-07-23 19:58:45PM - INFO - FnOList.py:29 - Updating edited F&O equity list
+21-07-23 20:21:52PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 20:21:52PM - INFO - FnOList.py:63 - Updating raw F&O equity list data to local storage
+21-07-23 20:21:52PM - INFO - FnOList.py:53 - Fetching raw F&O equity list data from local storage
+21-07-23 20:21:52PM - INFO - FnOList.py:71 - Editing raw NSE F&O euity list data
+21-07-23 20:21:52PM - INFO - FnOList.py:29 - Updating edited F&O equity list
+21-07-23 20:22:10PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 20:22:10PM - INFO - FnOList.py:63 - Updating raw F&O equity list data to local storage
+21-07-23 20:22:10PM - INFO - FnOList.py:53 - Fetching raw F&O equity list data from local storage
+21-07-23 20:22:10PM - INFO - FnOList.py:71 - Editing raw NSE F&O euity list data
+21-07-23 20:22:10PM - INFO - FnOList.py:29 - Updating edited F&O equity list
+21-07-23 20:22:11PM - ERROR - EquityToken.py:15 - Unable to find Token for APOLLO TYRES LTD
+21-07-23 20:22:11PM - ERROR - EquityToken.py:15 - Unable to find Token for ASTRAL LIMITED
+21-07-23 20:22:11PM - ERROR - EquityToken.py:15 - Unable to find Token for ADITYA BIRLA FASHION & RT
+21-07-23 20:22:11PM - ERROR - EquityToken.py:15 - Unable to find Token for ALKEM LABORATORIES LTD.
+21-07-23 20:22:11PM - ERROR - EquityToken.py:15 - Unable to find Token for AARTI INDUSTRIES LTD
+21-07-23 20:22:11PM - ERROR - EquityToken.py:15 - Unable to find Token for ABB INDIA LIMITED
+21-07-23 20:22:11PM - ERROR - EquityToken.py:15 - Unable to find Token for BHARAT ELECTRONICS LTD
+21-07-23 20:22:11PM - ERROR - EquityToken.py:15 - Unable to find Token for AU SMALL FINANCE BANK LTD
+21-07-23 20:22:11PM - ERROR - EquityToken.py:15 - Unable to find Token for AXIS BANK LIMITED
+21-07-23 20:22:11PM - ERROR - EquityToken.py:15 - Unable to find Token for BAJAJ FINANCE LIMITED
+21-07-23 20:22:12PM - ERROR - EquityToken.py:15 - Unable to find Token for BALKRISHNA IND. LTD
+21-07-23 20:22:12PM - ERROR - EquityToken.py:15 - Unable to find Token for BATA INDIA LTD
+21-07-23 20:22:12PM - ERROR - EquityToken.py:15 - Unable to find Token for BERGER PAINTS (I) LTD
+21-07-23 20:22:12PM - ERROR - EquityToken.py:15 - Unable to find Token for ASHOK LEYLAND LTD
+21-07-23 20:22:12PM - ERROR - EquityToken.py:15 - Unable to find Token for ABBOTT INDIA LIMITED
+21-07-23 20:22:12PM - ERROR - EquityToken.py:15 - Unable to find Token for ADITYA BIRLA CAPITAL LTD.
+21-07-23 20:22:12PM - ERROR - EquityToken.py:15 - Unable to find Token for COFORGE LIMITED
+21-07-23 20:22:12PM - ERROR - EquityToken.py:15 - Unable to find Token for CUMMINS INDIA LTD
+21-07-23 20:22:12PM - ERROR - EquityToken.py:15 - Unable to find Token for ASIAN PAINTS LIMITED
+21-07-23 20:22:12PM - ERROR - EquityToken.py:15 - Unable to find Token for ADANI ENTERPRISES LIMITED
+21-07-23 20:22:13PM - ERROR - EquityToken.py:15 - Unable to find Token for ADANI PORT & SEZ LTD
+21-07-23 20:22:13PM - ERROR - EquityToken.py:15 - Unable to find Token for BAJAJ AUTO LIMITED
+21-07-23 20:22:13PM - ERROR - EquityToken.py:15 - Unable to find Token for DIVI S LABORATORIES LTD
+21-07-23 20:22:13PM - ERROR - EquityToken.py:15 - Unable to find Token for AMBUJA CEMENTS LTD
+21-07-23 20:22:13PM - ERROR - EquityToken.py:15 - Unable to find Token for DIXON TECHNO (INDIA) LTD
+21-07-23 20:22:13PM - ERROR - EquityToken.py:15 - Unable to find Token for APOLLO HOSPITALS ENTER. L
+21-07-23 20:22:13PM - ERROR - EquityToken.py:15 - Unable to find Token for EICHER MOTORS LTD
+21-07-23 20:22:13PM - ERROR - EquityToken.py:15 - Unable to find Token for GODREJ CONSUMER PRODUCTS
+21-07-23 20:22:13PM - ERROR - EquityToken.py:15 - Unable to find Token for GRASIM INDUSTRIES LTD
+21-07-23 20:22:13PM - ERROR - EquityToken.py:15 - Unable to find Token for GUJARAT GAS LIMITED
+21-07-23 20:22:14PM - ERROR - EquityToken.py:15 - Unable to find Token for ATUL LTD
+21-07-23 20:22:14PM - ERROR - EquityToken.py:15 - Unable to find Token for HCL TECHNOLOGIES LTD
+21-07-23 20:22:14PM - ERROR - EquityToken.py:15 - Unable to find Token for HDFC LIFE INS CO LTD
+21-07-23 20:22:14PM - ERROR - EquityToken.py:15 - Unable to find Token for BALRAMPUR CHINI MILLS LTD
+21-07-23 20:22:14PM - ERROR - EquityToken.py:15 - Unable to find Token for BANDHAN BANK LIMITED
+21-07-23 20:22:14PM - ERROR - EquityToken.py:15 - Unable to find Token for BHARAT FORGE LTD
+21-07-23 20:22:14PM - ERROR - EquityToken.py:15 - Unable to find Token for IDFC LIMITED
+21-07-23 20:22:14PM - ERROR - EquityToken.py:15 - Unable to find Token for BHARTI AIRTEL LIMITED
+21-07-23 20:22:14PM - ERROR - EquityToken.py:15 - Unable to find Token for BHEL
+21-07-23 20:22:14PM - ERROR - EquityToken.py:15 - Unable to find Token for BOSCH LIMITED
+21-07-23 20:22:15PM - ERROR - EquityToken.py:15 - Unable to find Token for BHARAT PETROLEUM CORP  LT
+21-07-23 20:22:15PM - ERROR - EquityToken.py:15 - Unable to find Token for BRITANNIA INDUSTRIES LTD
+21-07-23 20:22:15PM - ERROR - EquityToken.py:15 - Unable to find Token for BIRLASOFT LIMITED
+21-07-23 20:22:15PM - ERROR - EquityToken.py:15 - Unable to find Token for IDFC FIRST BANK LIMITED
+21-07-23 20:22:15PM - ERROR - EquityToken.py:15 - Unable to find Token for CAN FIN HOMES LTD
+21-07-23 20:22:15PM - ERROR - EquityToken.py:15 - Unable to find Token for THE INDIAN HOTELS CO. LTD
+21-07-23 20:22:15PM - ERROR - EquityToken.py:15 - Unable to find Token for CHOLAMANDALAM IN & FIN CO
+21-07-23 20:22:15PM - ERROR - EquityToken.py:15 - Unable to find Token for COLGATE PALMOLIVE LTD.
+21-07-23 20:22:15PM - ERROR - EquityToken.py:15 - Unable to find Token for COROMANDEL INTERNTL. LTD
+21-07-23 20:22:15PM - ERROR - EquityToken.py:15 - Unable to find Token for CROMPT GREA CON ELEC LTD
+21-07-23 20:22:16PM - ERROR - EquityToken.py:15 - Unable to find Token for DABUR INDIA LTD
+21-07-23 20:22:16PM - ERROR - EquityToken.py:15 - Unable to find Token for DALMIA BHARAT LIMITED
+21-07-23 20:22:16PM - ERROR - EquityToken.py:15 - Unable to find Token for INTERGLOBE AVIATION LTD
+21-07-23 20:22:16PM - ERROR - EquityToken.py:15 - Unable to find Token for DEEPAK NITRITE LTD
+21-07-23 20:22:16PM - ERROR - EquityToken.py:15 - Unable to find Token for DELTA CORP LIMITED
+21-07-23 20:22:16PM - ERROR - EquityToken.py:15 - Unable to find Token for BANK OF BARODA
+21-07-23 20:22:16PM - ERROR - EquityToken.py:15 - Unable to find Token for DLF LIMITED
+21-07-23 20:22:16PM - ERROR - EquityToken.py:15 - Unable to find Token for INFOSYS LIMITED
+21-07-23 20:22:16PM - ERROR - EquityToken.py:15 - Unable to find Token for DR. REDDY S LABORATORIES
+21-07-23 20:22:16PM - ERROR - EquityToken.py:15 - Unable to find Token for ESCORTS KUBOTA LIMITED
+21-07-23 20:22:17PM - ERROR - EquityToken.py:15 - Unable to find Token for MARUTI SUZUKI INDIA LTD.
+21-07-23 20:22:17PM - ERROR - EquityToken.py:15 - Unable to find Token for FEDERAL BANK LTD
+21-07-23 20:22:17PM - ERROR - EquityToken.py:15 - Unable to find Token for UNITED SPIRITS LIMITED
+21-07-23 20:22:17PM - ERROR - EquityToken.py:15 - Unable to find Token for GAIL (INDIA) LTD
+21-07-23 20:22:17PM - ERROR - EquityToken.py:15 - Unable to find Token for MAX FINANCIAL SERV LTD
+21-07-23 20:22:17PM - ERROR - EquityToken.py:15 - Unable to find Token for GLENMARK PHARMACEUTICALS
+21-07-23 20:22:17PM - ERROR - EquityToken.py:15 - Unable to find Token for GMR AIRPORTS INFRA LTD
+21-07-23 20:22:17PM - ERROR - EquityToken.py:15 - Unable to find Token for GUJ NAR VAL FER & CHEM L
+21-07-23 20:22:17PM - ERROR - EquityToken.py:15 - Unable to find Token for NATIONAL ALUMINIUM CO LTD
+21-07-23 20:22:17PM - ERROR - EquityToken.py:15 - Unable to find Token for HINDUSTAN AERONAUTICS LTD
+21-07-23 20:22:18PM - ERROR - EquityToken.py:15 - Unable to find Token for HAVELLS INDIA LIMITED
+21-07-23 20:22:18PM - ERROR - EquityToken.py:15 - Unable to find Token for HDFC BANK LTD
+21-07-23 20:22:18PM - ERROR - EquityToken.py:15 - Unable to find Token for INFO EDGE (I) LTD
+21-07-23 20:22:18PM - ERROR - EquityToken.py:15 - Unable to find Token for HERO MOTOCORP LIMITED
+21-07-23 20:22:18PM - ERROR - EquityToken.py:15 - Unable to find Token for HINDALCO  INDUSTRIES  LTD
+21-07-23 20:22:18PM - ERROR - EquityToken.py:15 - Unable to find Token for HINDUSTAN COPPER LTD
+21-07-23 20:22:18PM - ERROR - EquityToken.py:15 - Unable to find Token for HINDUSTAN PETROLEUM CORP
+21-07-23 20:22:18PM - ERROR - EquityToken.py:15 - Unable to find Token for INDIABULLS HSG FIN LTD
+21-07-23 20:22:18PM - ERROR - EquityToken.py:15 - Unable to find Token for ICICI LOMBARD GIC LIMITED
+21-07-23 20:22:18PM - ERROR - EquityToken.py:15 - Unable to find Token for ICICI PRU LIFE INS CO LTD
+21-07-23 20:22:19PM - ERROR - EquityToken.py:15 - Unable to find Token for INDIAN ENERGY EXC LTD
+21-07-23 20:22:19PM - ERROR - EquityToken.py:15 - Unable to find Token for INDRAPRASTHA GAS LTD
+21-07-23 20:22:19PM - ERROR - EquityToken.py:15 - Unable to find Token for THE INDIA CEMENTS LIMITED
+21-07-23 20:22:19PM - ERROR - EquityToken.py:15 - Unable to find Token for INDIAMART INTERMESH LTD
+21-07-23 20:22:19PM - ERROR - EquityToken.py:15 - Unable to find Token for INDUS TOWERS LIMITED
+21-07-23 20:22:19PM - ERROR - EquityToken.py:15 - Unable to find Token for INTELLECT DESIGN ARENA
+21-07-23 20:22:19PM - ERROR - EquityToken.py:15 - Unable to find Token for INDIAN OIL CORP LTD
+21-07-23 20:22:19PM - ERROR - EquityToken.py:15 - Unable to find Token for IPCA LABORATORIES LTD
+21-07-23 20:22:19PM - ERROR - EquityToken.py:15 - Unable to find Token for INDIAN RAIL TOUR CORP LTD
+21-07-23 20:22:20PM - ERROR - EquityToken.py:15 - Unable to find Token for ORACLE FIN SERV SOFT LTD.
+21-07-23 20:22:20PM - ERROR - EquityToken.py:15 - Unable to find Token for PAGE INDUSTRIES LTD
+21-07-23 20:22:20PM - ERROR - EquityToken.py:15 - Unable to find Token for JK CEMENT LIMITED
+21-07-23 20:22:20PM - ERROR - EquityToken.py:15 - Unable to find Token for PERSISTENT SYSTEMS LTD
+21-07-23 20:22:20PM - ERROR - EquityToken.py:15 - Unable to find Token for PI INDUSTRIES LTD
+21-07-23 20:22:20PM - ERROR - EquityToken.py:15 - Unable to find Token for KOTAK MAHINDRA BANK LTD
+21-07-23 20:22:20PM - ERROR - EquityToken.py:15 - Unable to find Token for SBI CARDS & PAY SER LTD
+21-07-23 20:22:20PM - ERROR - EquityToken.py:15 - Unable to find Token for SBI LIFE INSURANCE CO LTD
+21-07-23 20:22:20PM - ERROR - EquityToken.py:15 - Unable to find Token for L&T FINANCE HOLDINGS LTD
+21-07-23 20:22:20PM - ERROR - EquityToken.py:15 - Unable to find Token for DR. LAL PATH LABS LTD.
+21-07-23 20:22:20PM - ERROR - EquityToken.py:15 - Unable to find Token for LAURUS LABS LIMITED
+21-07-23 20:22:21PM - ERROR - EquityToken.py:15 - Unable to find Token for LIC HOUSING FINANCE LTD
+21-07-23 20:22:21PM - ERROR - EquityToken.py:15 - Unable to find Token for LARSEN & TOUBRO LTD.
+21-07-23 20:22:21PM - ERROR - EquityToken.py:15 - Unable to find Token for LTIMINDTREE LIMITED
+21-07-23 20:22:21PM - ERROR - EquityToken.py:15 - Unable to find Token for L&T TECHNOLOGY SER. LTD.
+21-07-23 20:22:21PM - ERROR - EquityToken.py:15 - Unable to find Token for AUROBINDO PHARMA LTD
+21-07-23 20:22:21PM - ERROR - EquityToken.py:15 - Unable to find Token for LUPIN LIMITED
+21-07-23 20:22:21PM - ERROR - EquityToken.py:15 - Unable to find Token for MAHINDRA & MAHINDRA LTD
+21-07-23 20:22:21PM - ERROR - EquityToken.py:15 - Unable to find Token for M&M FIN. SERVICES LTD
+21-07-23 20:22:21PM - ERROR - EquityToken.py:15 - Unable to find Token for MARICO LIMITED
+21-07-23 20:22:22PM - ERROR - EquityToken.py:15 - Unable to find Token for METROPOLIS HEALTHCARE LTD
+21-07-23 20:22:22PM - ERROR - EquityToken.py:15 - Unable to find Token for BAJAJ FINSERV LTD.
+21-07-23 20:22:22PM - ERROR - EquityToken.py:15 - Unable to find Token for CIPLA LTD
+21-07-23 20:22:22PM - ERROR - EquityToken.py:15 - Unable to find Token for MRF LTD
+21-07-23 20:22:22PM - ERROR - EquityToken.py:15 - Unable to find Token for EXIDE INDUSTRIES LTD
+21-07-23 20:22:22PM - ERROR - EquityToken.py:15 - Unable to find Token for MUTHOOT FINANCE LIMITED
+21-07-23 20:22:22PM - ERROR - EquityToken.py:15 - Unable to find Token for NAVIN FLUORINE INT. LTD
+21-07-23 20:22:22PM - ERROR - EquityToken.py:15 - Unable to find Token for TATA CONSULTANCY SERV LT
+21-07-23 20:22:22PM - ERROR - EquityToken.py:15 - Unable to find Token for TECH MAHINDRA LIMITED
+21-07-23 20:22:22PM - ERROR - EquityToken.py:15 - Unable to find Token for TRENT LTD
+21-07-23 20:22:22PM - ERROR - EquityToken.py:15 - Unable to find Token for TVS MOTOR COMPANY  LTD
+21-07-23 20:22:23PM - ERROR - EquityToken.py:15 - Unable to find Token for BIOCON LIMITED.
+21-07-23 20:22:23PM - ERROR - EquityToken.py:15 - Unable to find Token for NESTLE INDIA LIMITED
+21-07-23 20:22:23PM - ERROR - EquityToken.py:15 - Unable to find Token for WIPRO LTD
+21-07-23 20:22:23PM - ERROR - EquityToken.py:15 - Unable to find Token for NTPC LTD
+21-07-23 20:22:23PM - ERROR - EquityToken.py:15 - Unable to find Token for OBEROI REALTY LIMITED
+21-07-23 20:22:23PM - ERROR - EquityToken.py:15 - Unable to find Token for OIL AND NATURAL GAS CORP.
+21-07-23 20:22:23PM - ERROR - EquityToken.py:15 - Unable to find Token for CITY UNION BANK LTD
+21-07-23 20:22:23PM - ERROR - EquityToken.py:15 - Unable to find Token for CHAMBAL FERTILIZERS LTD
+21-07-23 20:22:23PM - ERROR - EquityToken.py:15 - Unable to find Token for PETRONET LNG LIMITED
+21-07-23 20:22:23PM - ERROR - EquityToken.py:15 - Unable to find Token for PIDILITE INDUSTRIES LTD
+21-07-23 20:22:24PM - ERROR - EquityToken.py:15 - Unable to find Token for PUNJAB NATIONAL BANK
+21-07-23 20:22:24PM - ERROR - EquityToken.py:15 - Unable to find Token for GRANULES INDIA LIMITED
+21-07-23 20:22:24PM - ERROR - EquityToken.py:15 - Unable to find Token for POWER GRID CORP. LTD.
+21-07-23 20:22:24PM - ERROR - EquityToken.py:15 - Unable to find Token for THE RAMCO CEMENTS LIMITED
+21-07-23 20:22:24PM - ERROR - EquityToken.py:15 - Unable to find Token for RBL BANK LIMITED
+21-07-23 20:22:24PM - ERROR - EquityToken.py:15 - Unable to find Token for HDFC AMC LIMITED
+21-07-23 20:22:24PM - ERROR - EquityToken.py:15 - Unable to find Token for REC LIMITED
+21-07-23 20:22:24PM - ERROR - EquityToken.py:15 - Unable to find Token for RELIANCE INDUSTRIES LTD
+21-07-23 20:22:24PM - ERROR - EquityToken.py:15 - Unable to find Token for STEEL AUTHORITY OF INDIA
+21-07-23 20:22:24PM - ERROR - EquityToken.py:15 - Unable to find Token for STATE BANK OF INDIA
+21-07-23 20:22:25PM - ERROR - EquityToken.py:15 - Unable to find Token for SHREE CEMENT LIMITED
+21-07-23 20:22:25PM - ERROR - EquityToken.py:15 - Unable to find Token for SHRIRAM FINANCE LIMITED
+21-07-23 20:22:25PM - ERROR - EquityToken.py:15 - Unable to find Token for SRF LTD
+21-07-23 20:22:25PM - ERROR - EquityToken.py:15 - Unable to find Token for SUN PHARMACEUTICAL IND L
+21-07-23 20:22:25PM - ERROR - EquityToken.py:15 - Unable to find Token for COAL INDIA LTD
+21-07-23 20:22:25PM - ERROR - EquityToken.py:15 - Unable to find Token for SYNGENE INTERNATIONAL LTD
+21-07-23 20:22:25PM - ERROR - EquityToken.py:15 - Unable to find Token for HINDUSTAN UNILEVER LTD.
+21-07-23 20:22:25PM - ERROR - EquityToken.py:15 - Unable to find Token for TATA CHEMICALS LTD
+21-07-23 20:22:25PM - ERROR - EquityToken.py:15 - Unable to find Token for TATA COMMUNICATIONS LTD
+21-07-23 20:22:25PM - ERROR - EquityToken.py:15 - Unable to find Token for TATA CONSUMER PRODUCT LTD
+21-07-23 20:22:25PM - ERROR - EquityToken.py:15 - Unable to find Token for ICICI BANK LTD.
+21-07-23 20:22:26PM - ERROR - EquityToken.py:15 - Unable to find Token for TATA MOTORS LIMITED
+21-07-23 20:22:26PM - ERROR - EquityToken.py:15 - Unable to find Token for TATA POWER CO LTD
+21-07-23 20:22:26PM - ERROR - EquityToken.py:15 - Unable to find Token for INDUSIND BANK LIMITED
+21-07-23 20:22:26PM - ERROR - EquityToken.py:15 - Unable to find Token for TITAN COMPANY LIMITED
+21-07-23 20:22:26PM - ERROR - EquityToken.py:15 - Unable to find Token for TORRENT PHARMACEUTICALS L
+21-07-23 20:22:26PM - ERROR - EquityToken.py:15 - Unable to find Token for UNITED BREWERIES LTD
+21-07-23 20:22:26PM - ERROR - EquityToken.py:15 - Unable to find Token for ULTRATECH CEMENT LIMITED
+21-07-23 20:22:26PM - ERROR - EquityToken.py:15 - Unable to find Token for UPL LIMITED
+21-07-23 20:22:26PM - ERROR - EquityToken.py:15 - Unable to find Token for VOLTAS LTD
+21-07-23 20:22:26PM - ERROR - EquityToken.py:15 - Unable to find Token for JUBILANT FOODWORKS LTD
+21-07-23 20:22:27PM - ERROR - EquityToken.py:15 - Unable to find Token for ZEE ENTERTAINMENT ENT LTD
+21-07-23 20:22:27PM - ERROR - EquityToken.py:15 - Unable to find Token for ZYDUS LIFESCIENCES LTD
+21-07-23 20:22:27PM - ERROR - EquityToken.py:15 - Unable to find Token for MANAPPURAM FINANCE LTD
+21-07-23 20:22:27PM - ERROR - EquityToken.py:15 - Unable to find Token for ACC LIMITED
+21-07-23 20:22:27PM - ERROR - EquityToken.py:15 - Unable to find Token for VEDANTA LIMITED
+21-07-23 20:22:27PM - ERROR - EquityToken.py:15 - Unable to find Token for JINDAL STEEL & POWER LTD
+21-07-23 20:22:27PM - ERROR - EquityToken.py:15 - Unable to find Token for JSW STEEL LIMITED
+21-07-23 20:22:27PM - ERROR - EquityToken.py:15 - Unable to find Token for CONTAINER CORP OF IND LTD
+21-07-23 20:22:27PM - ERROR - EquityToken.py:15 - Unable to find Token for NMDC LTD.
+21-07-23 20:22:27PM - ERROR - EquityToken.py:15 - Unable to find Token for POLYCAB INDIA LIMITED
+21-07-23 20:22:27PM - ERROR - EquityToken.py:15 - Unable to find Token for SIEMENS LTD
+21-07-23 20:22:28PM - ERROR - EquityToken.py:15 - Unable to find Token for CANARA BANK
+21-07-23 20:22:28PM - ERROR - EquityToken.py:15 - Unable to find Token for MULTI COMMODITY EXCHANGE
+21-07-23 20:22:28PM - ERROR - EquityToken.py:15 - Unable to find Token for MAHANAGAR GAS LTD.
+21-07-23 20:22:28PM - ERROR - EquityToken.py:15 - Unable to find Token for SAMVRDHNA MTHRSN INTL LTD
+21-07-23 20:22:28PM - ERROR - EquityToken.py:15 - Unable to find Token for ITC LTD
+21-07-23 20:22:28PM - ERROR - EquityToken.py:15 - Unable to find Token for PVR INOX LIMITED
+21-07-23 20:22:28PM - ERROR - EquityToken.py:15 - Unable to find Token for SUN TV NETWORK LIMITED
+21-07-23 20:22:28PM - ERROR - EquityToken.py:15 - Unable to find Token for PIRAMAL ENTERPRISES LTD
+21-07-23 20:22:28PM - ERROR - EquityToken.py:15 - Unable to find Token for POWER FIN CORP LTD.
+21-07-23 20:22:29PM - ERROR - EquityToken.py:15 - Unable to find Token for TATA STEEL LIMITED
+21-07-23 20:22:29PM - ERROR - EquityToken.py:15 - Unable to find Token for GODREJ PROPERTIES LTD
+21-07-23 20:22:29PM - ERROR - EquityToken.py:15 - Unable to find Token for VODAFONE IDEA LIMITED
+21-07-23 20:22:29PM - ERROR - EquityToken.py:15 - Unable to find Token for MPHASIS LIMITED
+21-07-23 20:23:24PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 20:23:24PM - INFO - FnOList.py:63 - Updating raw F&O equity list data to local storage
+21-07-23 20:23:24PM - INFO - FnOList.py:53 - Fetching raw F&O equity list data from local storage
+21-07-23 20:23:24PM - INFO - FnOList.py:71 - Editing raw NSE F&O euity list data
+21-07-23 20:23:24PM - INFO - FnOList.py:29 - Updating edited F&O equity list
+21-07-23 20:29:37PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 20:29:37PM - INFO - FnOList.py:63 - Updating raw F&O equity list data to local storage
+21-07-23 20:29:37PM - INFO - FnOList.py:53 - Fetching raw F&O equity list data from local storage
+21-07-23 20:29:37PM - INFO - FnOList.py:71 - Editing raw NSE F&O euity list data
+21-07-23 20:29:37PM - INFO - FnOList.py:29 - Updating edited F&O equity list
+21-07-23 20:30:52PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 20:30:52PM - INFO - FnOList.py:63 - Updating raw F&O equity list data to local storage
+21-07-23 20:30:52PM - INFO - FnOList.py:53 - Fetching raw F&O equity list data from local storage
+21-07-23 20:30:52PM - INFO - FnOList.py:71 - Editing raw NSE F&O euity list data
+21-07-23 20:30:52PM - INFO - FnOList.py:29 - Updating edited F&O equity list
+21-07-23 20:34:15PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+21-07-23 20:34:16PM - INFO - FnOList.py:63 - Updating raw F&O equity list data to local storage
+21-07-23 20:34:16PM - INFO - FnOList.py:53 - Fetching raw F&O equity list data from local storage
+21-07-23 20:34:16PM - INFO - FnOList.py:71 - Editing raw NSE F&O euity list data
+21-07-23 20:34:16PM - INFO - FnOList.py:29 - Updating edited F&O equity list
