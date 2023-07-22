@@ -9,3 +9,6 @@ pandas
 pip
 python-dotenv
 pytz
+websocket-client
+requests
+pyotp

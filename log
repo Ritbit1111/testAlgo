@@ -365,3 +365,11 @@
 21-07-23 20:34:16PM - INFO - FnOList.py:53 - Fetching raw F&O equity list data from local storage
 21-07-23 20:34:16PM - INFO - FnOList.py:71 - Editing raw NSE F&O euity list data
 21-07-23 20:34:16PM - INFO - FnOList.py:29 - Updating edited F&O equity list
+22-07-23 13:06:35PM - INFO - connectFlattrade.py:27 - Starting the token generation!
+22-07-23 13:06:41PM - INFO - connectFlattrade.py:31 - Success: Token generated
+22-07-23 13:06:41PM - INFO - connectFlattrade.py:39 - Setting the TODAYSTOKEN to the .env
+22-07-23 13:06:41PM - INFO - FnOList.py:41 - Getting raw F&O equity list from NSE
+22-07-23 13:06:42PM - INFO - FnOList.py:63 - Updating raw F&O equity list data to local storage
+22-07-23 13:06:42PM - INFO - FnOList.py:53 - Fetching raw F&O equity list data from local storage
+22-07-23 13:06:42PM - INFO - FnOList.py:71 - Editing raw NSE F&O euity list data
+22-07-23 13:06:42PM - INFO - FnOList.py:29 - Updating edited F&O equity list
