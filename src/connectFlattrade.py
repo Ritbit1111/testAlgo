@@ -5,6 +5,13 @@ import requests
 import pyotp
 import dotenv
 
+def is_connected_to_Internet():
+    ses = requests.Session()
+    try:
+        ses.get('https://www.google.co.in')
+        return True
+    except:
+        return False
 
 class ConnectFlatTrade:
     sessionid_header ={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36","Referer":"https://auth.flattrade.in/"} 
@@ -42,26 +49,44 @@ class ConnectFlatTrade:
 
     def get_session_id(self):
         sessionid_response = self.ses.post(self.sessionid_url,headers=self.sessionid_header) 
-        return sessionid_response.text 
+        if sessionid_response.status_code==200:
+            return sessionid_response.text 
+        else:
+            self.logger.error("Unable to fetch session ID! : status_code: %s", sessionid_response.status_code)
 
     def get_request_code(self):
         totp = pyotp.TOTP(os.getenv("TOTPKEY")) 
         passwordEncrpted =  hashlib.sha256(os.getenv("PASSWORD").encode()).hexdigest() 
         payload = {"UserName":os.getenv("USERID"),"Password":passwordEncrpted,"PAN_DOB":totp.now(),"App":"","ClientID":"","Key":"","APIKey":os.getenv("APIKEY"),"Sid":self.session_id} 
         code_response = self.ses.post(self.request_code_url, json=payload) 
-        reqcodeRes = code_response.json() 
-        parsed = urlparse(reqcodeRes['RedirectURL']) 
-        return parse_qs(parsed.query)['code'][0] 
+        if code_response.status_code==200:
+            reqcodeRes = code_response.json() 
+            parsed = urlparse(reqcodeRes['RedirectURL']) 
+            return parse_qs(parsed.query)['code'][0] 
+        else:
+            self.logger.error("Unable to request code: status_code: %s", code_response.status_code)
+
 
     def get_token(self):
-        api_secret = os.getenv("APIKEY")+ self.request_code + os.getenv("SECRETKEY") 
-        api_secret =  hashlib.sha256(api_secret.encode()).hexdigest() 
-        payload = {"api_key":os.getenv("APIKEY"), "request_code":self.request_code, "api_secret":api_secret} 
-        token_response = self.ses.post(self.token_url, json=payload) 
-        usertoken = token_response.json()['token'] 
-        return usertoken
+        if self.request_code:
+            api_secret = os.getenv("APIKEY")+ self.request_code + os.getenv("SECRETKEY") 
+            api_secret =  hashlib.sha256(api_secret.encode()).hexdigest() 
+            payload = {"api_key":os.getenv("APIKEY"), "request_code":self.request_code, "api_secret":api_secret} 
+            token_response = self.ses.post(self.token_url, json=payload) 
+            if token_response.status_code==200:
+                usertoken = token_response.json()['token'] 
+                return usertoken
+            else:
+                self.logger.error("Unable to generate token: status_code: %s", token_response.status_code)
+        else:
+            self.logger.error("Unable to generate token due to lack of request code")
 
 if __name__=="__main__":
-    con = ConnectFlatTrade()
-    con.run()
-    con.set_token_to_dotenv()
+    from logger import get_logger
+    logger = get_logger()
+    if is_connected_to_Internet():
+        con = ConnectFlatTrade(logger, dotenv_path='../.env')
+        con.run()
+        con.set_token_to_dotenv()
+    else:
+        logger.error('No internet connection!')

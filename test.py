@@ -3,8 +3,9 @@ import datetime
 from src.logger import get_logger
 from src.FnOList import FnOEquityNSE
 from src.connectFlattrade import ConnectFlatTrade
-from src.noren import NorenApiPy
+from src.api.noren import NorenApiPy, get_time
 from src.EquityToken import FetchToken
+from src.strategy.momentum import FilterStocks
 import dotenv
 import os
 
@@ -18,7 +19,7 @@ if genToken:
   resp = con.run()
   con.set_token_to_dotenv()
 token = os.getenv('TODAYSTOKEN')
-print(token)
+# print(token)
 api = NorenApiPy()
 usersession=token
 userid = 'FT020770'
@@ -40,3 +41,11 @@ if not is_present:
   add_token()
 
 df_tsym = pd.read_csv('./apidata/fno_equity_tsym_token.csv')
+print(df_tsym.head())
+fs = FilterStocks(logger, api, df_tsym)
+
+# '%d-%m-%Y %H:%M:%S'
+import asyncio
+# fs.add_data(starttime=get_time("19-07-2023 09:15:00"), endtime=get_time("19-07-2023 09:30:00"), interval=15)
+ans  = asyncio.run(fs.add_data(starttime=get_time("19-07-2023 09:15:00"), endtime=get_time("19-07-2023 09:30:00"), interval=15))
+print(ans)
