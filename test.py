@@ -12,6 +12,7 @@ import os
 dotenv.load_dotenv()
 logger = get_logger(filename='./log')
 
+
 # Init API
 genToken = False
 if genToken:
