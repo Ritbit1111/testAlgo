@@ -12,6 +12,7 @@ import urllib
 from time import sleep
 from datetime import datetime as dt
 from dataclasses import dataclass
+import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -877,15 +878,16 @@ class NorenApi:
 
         return resDict
 
-    async def get_time_price_series_async(self, exchange, token, starttime, endtime, interval):
-        return await asyncio.to_thread(self.get_time_price_series, str(exchange), str(token), str(starttime), str(endtime), str(interval))
-
     async def get_time_price_series_tppasync(self, tpp:TimePriceParams):
         return await asyncio.to_thread(self.get_time_price_series, str(tpp.exchange), str(tpp.token), str(tpp.starttime), str(tpp.endtime), str(tpp.interval))
 
     async def get_time_price_series_tpplist(self, time_price_params:list[TimePriceParams]):
-        datali = [self.get_time_price_series_tppasync(tpp) for tpp in time_price_params]
-        return await asyncio.gather(*datali)
+        # Don't know how to integrate tqdm in asyncio.gather
+        # datali = [self.get_time_price_series_tppasync(tpp) for tpp in time_price_params]
+        # return await asyncio.gather(*datali)
+        datalitasks = [asyncio.create_task(self.get_time_price_series_tppasync(tpp)) for tpp in time_price_params]
+        datalitasksru = [ await f for f in tqdm.tqdm(asyncio.as_completed(datalitasks), total=len(datalitasks)) ]
+        return datalitasksru
 
     def get_time_price_series(self, exchange, token, starttime=None, endtime=None, interval= None):
         '''
@@ -925,8 +927,8 @@ class NorenApi:
         resDict = json.loads(res.text)
         
         #error is a json with stat and msg wchih we printed earlier.
-        if type(resDict) != list:                            
-                return None
+        # if type(resDict) != list:                            
+        #     return None
 
         return resDict
 

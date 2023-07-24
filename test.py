@@ -5,7 +5,7 @@ from src.FnOList import FnOEquityNSE
 from src.connectFlattrade import ConnectFlatTrade
 from src.api.noren import NorenApiPy, get_time
 from src.EquityToken import FetchToken
-from src.strategy.momentum import FilterStocks
+from src.strategy.momentum import FilterStocks, BuyStocks
 import dotenv
 import os
 from dataclasses import dataclass
@@ -32,8 +32,6 @@ is_present=True
 if not is_present:
   fnoconnect = FnOEquityNSE(logger=logger, path='./nsedata/fo')
   df = fnoconnect.get_latest(update=True)
-  print(df.shape)
-
   def add_token():
     token_api = FetchToken(logger, api)
     tsym, token = token_api.get_tsym_token(df['UNDERLYING'])
@@ -49,14 +47,17 @@ df_tsym = pd.read_csv('./apidata/fno_equity_tsym_token.csv')
 fs = FilterStocks(logger, api, df_tsym)
 
 # '%d-%m-%Y %H:%M:%S'
-import asyncio
+# ans = api.get_time_price_series("NSE", 163, starttime=get_time("19-07-2023 09:15:00"), endtime=get_time("19-07-2023 09:30:00"), interval=15)
+# print(ans)
 # fs.add_data(starttime=get_time("19-07-2023 09:15:00"), endtime=get_time("19-07-2023 09:30:00"), interval=15)
 # ans  = asyncio.run(fs.add_data(exchange="NSE", starttime=str(st), endtime=str(et), interval=str(3)))
+import asyncio
 fs.add_data()
-# print(ans)
+fs.filter_data()
 
-# Purchase the stocks ~5lacs
-
+# Purchase the stocks ~5lacs at 9:35am
+bs = BuyStocks(logger, api, pd.read_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/call_today.csv'))
+bs.buy_init_stocks()
 # Monitor till 12 and sell stocks
 
 #
