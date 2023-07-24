@@ -63,7 +63,7 @@ class BuyStocks:
         quantity = []
         for index, row in self.df.iterrows():
 
-            bp, qty = self.get_book_price(row['token'])
+            bp, qty = self.get_book_price(row['tsym'], row['token'])
             print(bp, qty)
             book_price.append(bp)
             quantity.append(qty)
@@ -71,14 +71,14 @@ class BuyStocks:
         self.df['book_price'] = book_price
         self.df.to_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/call_today_booked.csv')
     
-    def get_book_price(self, token):
-        resp = self.api.place_order(buy_or_sell=BuyorSell.Buy, product_type=ProductType.Delivery,
-                exchange='NSE', tradingsymbol='INFY-EQ', 
-                quantity=1, discloseqty=0,price_type=PriceType.Market, price=0, trigger_price=None,
-                retention='DAY', remarks='my_order_001')
-        
+    def get_book_price(self, tsym, token):
         data = self.api.get_time_price_series("NSE", token, get_time("24-07-2023 09:35:00"), get_time("24-07-2023 09:36:00"), 1)
         buy_price = data[0]["intc"]
         qty = int(self.PER_STOCK_PRICE/float(buy_price))
+        # resp = self.api.place_order(buy_or_sell=BuyorSell.Buy, product_type=ProductType.Delivery,
+        #         exchange='NSE', tradingsymbol=tsym, 
+        #         quantity=qty, discloseqty=0,price_type=PriceType.Market, price=0, trigger_price=None,
+        #         retention='DAY', remarks='my_order_001')
+        
         print(buy_price, qty)
         return buy_price, qty
