@@ -52,8 +52,8 @@ fs = FilterStocks(logger, api, df_tsym)
 # fs.add_data(starttime=get_time("19-07-2023 09:15:00"), endtime=get_time("19-07-2023 09:30:00"), interval=15)
 # ans  = asyncio.run(fs.add_data(exchange="NSE", starttime=str(st), endtime=str(et), interval=str(3)))
 import asyncio
-fs.add_data()
-fs.filter_data()
+# fs.add_data()
+# fs.filter_data()
 
 # Purchase the stocks ~5lacs at 9:35am
 bs = BuyStocks(logger, api, pd.read_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/call_today.csv'))

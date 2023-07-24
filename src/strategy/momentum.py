@@ -53,7 +53,9 @@ class FilterStocks:
 class BuyStocks:
     PER_STOCK_PRICE = 100000
     def __init__(self, logger, api, call_df) -> None:
-        self.df = pd.read_csv(call_df)
+        self.df = call_df
+        self.logger = logger
+        self.api = api
     
     def buy_init_stocks(self):
         self.df = self.df.head(5)
@@ -61,15 +63,16 @@ class BuyStocks:
         quantity = []
         for index, row in self.df.iterrows():
             bp, qty = self.get_book_price(row['token'])
+            print(bp, qty)
             book_price.append(bp)
             quantity.append(qty)
-        self.book_price = book_price
-        self.quantity = book_price
-        self.df['quantity'] = self.quantity
-        self.df['book_price'] = self.book_price
+        self.df['quantity'] = quantity
+        self.df['book_price'] = book_price
+        self.df.to_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/call_today_booked.csv')
     
     def get_book_price(self, token):
-        data = self.api.get_time_price_series("NSE", token, get_time("24-07-2023 09:35"), get_time("24-07-2023 09:36"), 1)
+        data = self.api.get_time_price_series("NSE", token, get_time("24-07-2023 09:35:00"), get_time("24-07-2023 09:36:00"), 1)
         buy_price = data[0]["intc"]
-        qty = int(self.PER_STOCK_PRICE/int(buy_price))
+        qty = int(self.PER_STOCK_PRICE/float(buy_price))
+        print(buy_price, qty)
         return buy_price, qty
