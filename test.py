@@ -8,6 +8,7 @@ from src.EquityToken import FetchToken
 from src.strategy.momentum import FilterStocks
 import dotenv
 import os
+from dataclasses import dataclass
 
 dotenv.load_dotenv()
 logger = get_logger(filename='./log')
@@ -42,11 +43,20 @@ if not is_present:
   add_token()
 
 df_tsym = pd.read_csv('./apidata/fno_equity_tsym_token.csv')
-print(df_tsym.head())
+# print(df_tsym.head())
+
+# Get stock list
 fs = FilterStocks(logger, api, df_tsym)
 
 # '%d-%m-%Y %H:%M:%S'
 import asyncio
 # fs.add_data(starttime=get_time("19-07-2023 09:15:00"), endtime=get_time("19-07-2023 09:30:00"), interval=15)
-ans  = asyncio.run(fs.add_data(starttime=get_time("19-07-2023 09:15:00"), endtime=get_time("19-07-2023 09:30:00"), interval=15))
-print(ans)
+# ans  = asyncio.run(fs.add_data(exchange="NSE", starttime=str(st), endtime=str(et), interval=str(3)))
+fs.add_data()
+# print(ans)
+
+# Purchase the stocks ~5lacs
+
+# Monitor till 12 and sell stocks
+
+#

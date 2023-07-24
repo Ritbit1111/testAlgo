@@ -2,6 +2,7 @@ import json
 import requests
 import threading
 import websocket
+import asyncio
 import logging
 import enum
 import datetime
@@ -10,6 +11,7 @@ import time
 import urllib
 from time import sleep
 from datetime import datetime as dt
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +60,14 @@ def reporterror(msg):
 def reportinfo(msg):
     #print(msg)
     logger.info(msg)
+
+@dataclass
+class TimePriceParams:
+    exchange: str
+    token: int
+    starttime: str
+    endtime: str
+    interval: int
 
 class NorenApi:
     __service_config = {
@@ -867,6 +877,16 @@ class NorenApi:
 
         return resDict
 
+    async def get_time_price_series_async(self, exchange, token, starttime, endtime, interval):
+        return await asyncio.to_thread(self.get_time_price_series, str(exchange), str(token), str(starttime), str(endtime), str(interval))
+
+    async def get_time_price_series_tppasync(self, tpp:TimePriceParams):
+        return await asyncio.to_thread(self.get_time_price_series, str(tpp.exchange), str(tpp.token), str(tpp.starttime), str(tpp.endtime), str(tpp.interval))
+
+    async def get_time_price_series_tpplist(self, time_price_params:list[TimePriceParams]):
+        datali = [self.get_time_price_series_tppasync(tpp) for tpp in time_price_params]
+        return await asyncio.gather(*datali)
+
     def get_time_price_series(self, exchange, token, starttime=None, endtime=None, interval= None):
         '''
         gets the chart data 
@@ -887,11 +907,11 @@ class NorenApi:
         #
         values              = {'ordersource':'API'}
         values["uid"]       = self.__username
-        values["exch"]      = exchange
-        values["token"]     = token
-        values["st"] = str(starttime)
+        values["exch"]      = str(exchange)
+        values["token"]     = str(token)
+        values["st"]        = str(starttime)
         if endtime != None:
-            values["et"]   = str(endtime)
+            values["et"]    = str(endtime)
         if interval != None:
             values["intrv"] = str(interval)
 
