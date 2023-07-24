@@ -1,14 +1,16 @@
 import pandas as pd
 import datetime
+import time
+import asyncio
+import dotenv
+import os
+from dataclasses import dataclass
 from src.logger import get_logger
 from src.FnOList import FnOEquityNSE
 from src.connectFlattrade import ConnectFlatTrade
 from src.api.noren import NorenApiPy, get_time
 from src.EquityToken import FetchToken
 from src.strategy.momentum import FilterStocks, BuyStocks
-import dotenv
-import os
-from dataclasses import dataclass
 
 dotenv.load_dotenv()
 logger = get_logger(filename='./log')
@@ -51,13 +53,11 @@ fs = FilterStocks(logger, api, df_tsym)
 # print(ans)
 # fs.add_data(starttime=get_time("19-07-2023 09:15:00"), endtime=get_time("19-07-2023 09:30:00"), interval=15)
 # ans  = asyncio.run(fs.add_data(exchange="NSE", starttime=str(st), endtime=str(et), interval=str(3)))
-import asyncio
-# fs.add_data()
-# fs.filter_data()
+fs.add_data()
+fs.filter_data()
 
 # Purchase the stocks ~5lacs at 9:35am
 bs = BuyStocks(logger, api, pd.read_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/call_today.csv'))
 bs.buy_init_stocks()
-# Monitor till 12 and sell stocks
 
-#
+# Get options price
