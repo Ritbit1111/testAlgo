@@ -4,6 +4,37 @@ from urllib.parse import parse_qs, urlparse
 import requests
 import pyotp
 import dotenv
+from src.api.noren import NorenApiPy
+import logging
+
+
+def initialize(today, logger:logging.Logger):
+    try:
+        os.mkdir(os.path.join('apidata', today))
+    except FileExistsError:
+        pass
+    if not is_connected_to_Internet():
+        logger.error("Unable to connect to Internet!")
+        return None
+
+    token = os.getenv('TODAYSTOKEN')
+    api = NorenApiPy()
+    for try_count in range(3):
+        api.set_session(userid='FT020770', password = '', usertoken=token)
+        res = api.get_user_details()
+        if res['stat']=='Ok':
+            logger.info("Connected to the broker FlatTrade!")
+            # logger.debug(res)
+            break
+        if res['emsg']=='Session Expired :  Invalid Session Key':
+            logger.info(res)
+            con = ConnectFlatTrade(logger=logger)
+            resp = con.run()
+            con.set_token_to_dotenv()
+            token = os.getenv('TODAYSTOKEN')
+        else:
+            logger.log(res)
+    return api
 
 def is_connected_to_Internet():
     ses = requests.Session()

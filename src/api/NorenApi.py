@@ -101,6 +101,7 @@ class NorenApi:
           'span_calculator' :'/SpanCalc',
           'option_greek' :'/GetOptionGreek',
           'get_daily_price_series' :'/EODChartData',      
+          'get_user_details' :'/UserDetails',      
       },
       'websocket_endpoint': 'wss://wsendpoint/',
       #'eoddata_endpoint' : 'http://eodhost/'
@@ -544,6 +545,7 @@ class NorenApi:
         reportmsg(res.text)
 
         resDict = json.loads(res.text)
+        return resDict
         if resDict['stat'] != 'Ok':            
             return None
 
@@ -1106,5 +1108,39 @@ class NorenApi:
         reportmsg(res.text)
 
         resDict = json.loads(res.text)        
+
+        return resDict
+
+    def get_user_details(self):
+        config = NorenApi.__service_config
+
+        #prepare the uri
+        #url = f"{config['eoddata_endpoint']}" 
+        url = f"{config['host']}{config['routes']['get_user_details']}" 
+        reportmsg(url)
+
+        #prepare the data
+        values              = {}
+        values["uid"]       = self.__username
+        
+        payload = 'jData=' + json.dumps(values) + f'&jKey={self.__susertoken}'
+        reportmsg(payload)
+
+        headers = {"Content-Type": "application/json; charset=utf-8"}
+        res = requests.post(url, data=payload, headers=headers)
+        reportmsg(res)
+        return json.loads(res.text)
+
+        if res.status_code != 200:
+            return None
+
+        if len(res.text) == 0:
+            return None
+
+        resDict = json.loads(res.text)
+        
+        #error is a json with stat and msg wchih we printed earlier.
+        if type(resDict) != list:                            
+            return None
 
         return resDict

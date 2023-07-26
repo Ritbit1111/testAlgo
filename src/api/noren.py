@@ -27,7 +27,7 @@ class Order:
         self.order_id=None
 
 
-def get_time(time_string):
+def get_epoch_time(time_string):
     data = time.strptime(time_string,'%d-%m-%Y %H:%M:%S')
     return time.mktime(data)
 
