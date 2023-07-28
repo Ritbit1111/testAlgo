@@ -1128,7 +1128,11 @@ class NorenApi:
 
         headers = {"Content-Type": "application/json; charset=utf-8"}
         res = requests.post(url, data=payload, headers=headers)
-        reportmsg(res)
+        if res.status_code != 200:
+            reporterror(msg=res.status_code)
+            return None
+        # reportmsg(msg=res.status_code)
+        reportmsg(msg=res.text)
         return json.loads(res.text)
 
         if res.status_code != 200:

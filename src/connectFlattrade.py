@@ -22,18 +22,17 @@ def initialize(today, logger:logging.Logger):
     for try_count in range(3):
         api.set_session(userid='FT020770', password = '', usertoken=token)
         res = api.get_user_details()
-        if res['stat']=='Ok':
-            logger.info("Connected to the broker FlatTrade!")
-            # logger.debug(res)
-            break
-        if res['emsg']=='Session Expired :  Invalid Session Key':
+        if res:
+            if res['stat']=='Ok':
+                logger.info("Connected to the broker FlatTrade!")
+                # logger.debug(res)
+                break
+        else:
             logger.info(res)
             con = ConnectFlatTrade(logger=logger)
             resp = con.run()
             con.set_token_to_dotenv()
             token = os.getenv('TODAYSTOKEN')
-        else:
-            logger.log(res)
     return api
 
 def is_connected_to_Internet():
@@ -81,16 +80,20 @@ class ConnectFlatTrade:
     def get_session_id(self):
         sessionid_response = self.ses.post(self.sessionid_url,headers=self.sessionid_header) 
         if sessionid_response.status_code==200:
+            # self.logger.info("Session ID: %s", sessionid_response.text)
             return sessionid_response.text 
         else:
             self.logger.error("Unable to fetch session ID! : status_code: %s", sessionid_response.status_code)
+            return None
 
     def get_request_code(self):
         totp = pyotp.TOTP(os.getenv("TOTPKEY")) 
         passwordEncrpted =  hashlib.sha256(os.getenv("PASSWORD").encode()).hexdigest() 
         payload = {"UserName":os.getenv("USERID"),"Password":passwordEncrpted,"PAN_DOB":totp.now(),"App":"","ClientID":"","Key":"","APIKey":os.getenv("APIKEY"),"Sid":self.session_id} 
         code_response = self.ses.post(self.request_code_url, json=payload) 
+        # self.logger.info("%s\n%s", code_response.request.url, code_response.request.body)
         if code_response.status_code==200:
+            # self.logger.info(code_response.text)
             reqcodeRes = code_response.json() 
             parsed = urlparse(reqcodeRes['RedirectURL']) 
             return parse_qs(parsed.query)['code'][0] 

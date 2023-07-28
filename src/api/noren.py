@@ -27,11 +27,6 @@ class Order:
         self.order_id=None
 
 
-def get_epoch_time(time_string):
-    data = time.strptime(time_string,'%d-%m-%Y %H:%M:%S')
-    return time.mktime(data)
-
-
 class NorenApiPy(NorenApi):
     def __init__(self):
         NorenApi.__init__(self, host='https://piconnect.flattrade.in/PiConnectTP/', websocket='wss://piconnect.flattrade.in/PiConnectWSTp/')

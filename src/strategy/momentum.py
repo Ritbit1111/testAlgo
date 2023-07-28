@@ -8,45 +8,46 @@ import pandas as pd
 import sys
 from src.api.noren import NorenApiPy
 from src.api.NorenApi import TimePriceParams, BuyorSell, ProductType, PriceType
-sys.path.insert(0, '/Users/nbrk/AlgoTrade/testAlgo/')
 from src.logger import get_logger
 import asyncio
-from src.api.noren import NorenApiPy, get_epoch_time
-import tqdm
+from src.utils.utils import get_epoch_time
+import os
+import datetime
 
 class FilterStocks:
-    def __init__(self, logger, api:NorenApiPy, df:pd.DataFrame, threshold_call=0.2, threshold_put=-0.2):
+    def __init__(self, logger, api:NorenApiPy, df:pd.DataFrame, path, threshold_call=0.2, threshold_put=-0.2):
         self.df = df
         self.logger = logger
         self.api = api
         self.thput=threshold_put
         self.thcall=threshold_call
+        self.path = path
     
     async def get_data(self, exchange, starttime, endtime, interval=1):
-        # return self.api.get_time_price_series("NSE", "163", starttime, endtime, interval)
         tpp_list = [TimePriceParams(exchange, t['token'], starttime, endtime, interval) for _, t in self.df.iterrows()]
-        # print(tpp_list)
         return await self.api.get_time_price_series_tpplist(tpp_list)
     
-    def add_data(self, date):
-        st = get_epoch_time(date+" 09:15:00")
-        et = get_epoch_time(date+" 09:30:00") 
+    def add_data(self, date:datetime.datetime):
+        st = get_epoch_time(date.strftime("%d-%m-%Y")+" 09:15:00")
+        et = get_epoch_time(date.strftime("%d-%m-%Y")+" 09:30:00") 
         raw_data = asyncio.run(self.get_data("NSE", st, et, 15))
         df_markte_open = pd.DataFrame([tdata[0] for tdata in raw_data])
-        df_new = pd.concat([self.df, df_markte_open], axis=1)
-        df_new.to_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/fno_equity_tsym_token_first15.csv', index=False)
+        df_market_open = pd.concat([self.df, df_markte_open], axis=1)
+        self.df_market_open = df_market_open
+        self.df_market_open.to_csv(os.path.join(self.path, 'market_open.csv'), index=None)
     
     def filter_data(self):
-        df_new = pd.read_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/fno_equity_tsym_token_first15.csv')
-        df_new['change'] = df_new['intc'] - df_new['into']
-        df_new['chperc'] = (df_new['change']/df_new['into'])*100
-        df = df_new.sort_values(by='chperc')
+        df_market_open = pd.read_csv(os.path.join(self.path, 'market_open.csv'))
+        df_market_open['change'] = df_market_open['intc'] - df_market_open['into']
+        df_market_open['chperc'] = (df_market_open['change']/df_market_open['into'])*100
+        df = df_market_open.sort_values(by='chperc')
         df_call = df.tail(10).sort_values(by='chperc', ascending=False)
         df_put = df.head(10)
         df_call = df_call[df_call['chperc']>self.thcall]
         df_put = df_put[df_put['chperc']<self.thput]
-        df_call.to_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/call_today.csv')
-        df_put.to_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/put_today.csv')
+        df_call.to_csv(os.path.join(self.path, 'buy.csv'), index=None)
+        df_put.to_csv(os.path.join(self.path, 'sell.csv'), index=None)
+
     
 # fs = FilterStocks(get_logger(), pd.read_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/fno_equity_tsym_token.csv'))
 
@@ -69,7 +70,6 @@ class BuyStocks:
             quantity.append(qty)
         self.call_df['quantity'] = quantity
         self.call_df['book_price'] = book_price
-        # self.call_df.to_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/equity_buy.csv', index=False)
         self.call_df.to_csv('apidata/equity_buy.csv', index=False)
         return self.call_df
     
