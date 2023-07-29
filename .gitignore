@@ -2,8 +2,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode
 
 log
-nsedata/*
-apidata/*
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

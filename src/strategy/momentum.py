@@ -28,16 +28,24 @@ class FilterStocks:
         return await self.api.get_time_price_series_tpplist(tpp_list)
     
     def add_data(self, date:datetime.datetime):
+        mopath = os.path.join(self.path, 'market_open.csv')
+        if os.path.exists(mopath):
+            return
         st = get_epoch_time(date.strftime("%d-%m-%Y")+" 09:15:00")
         et = get_epoch_time(date.strftime("%d-%m-%Y")+" 09:30:00") 
         raw_data = asyncio.run(self.get_data("NSE", st, et, 15))
         df_markte_open = pd.DataFrame([tdata[0] for tdata in raw_data])
         df_market_open = pd.concat([self.df, df_markte_open], axis=1)
         self.df_market_open = df_market_open
-        self.df_market_open.to_csv(os.path.join(self.path, 'market_open.csv'), index=None)
+        self.df_market_open.to_csv(mopath, index=None)
     
     def filter_data(self):
-        df_market_open = pd.read_csv(os.path.join(self.path, 'market_open.csv'))
+        bpath = os.path.join(self.path, 'buy.csv')
+        spath = os.path.join(self.path, 'sell.csv')
+        mopath = os.path.join(self.path, 'market_open.csv')
+        if os.path.exists(bpath) and os.path.exists(spath):
+            return
+        df_market_open = pd.read_csv(mopath)
         df_market_open['change'] = df_market_open['intc'] - df_market_open['into']
         df_market_open['chperc'] = (df_market_open['change']/df_market_open['into'])*100
         df = df_market_open.sort_values(by='chperc')
@@ -45,8 +53,8 @@ class FilterStocks:
         df_put = df.head(10)
         df_call = df_call[df_call['chperc']>self.thcall]
         df_put = df_put[df_put['chperc']<self.thput]
-        df_call.to_csv(os.path.join(self.path, 'buy.csv'), index=None)
-        df_put.to_csv(os.path.join(self.path, 'sell.csv'), index=None)
+        df_call.to_csv(bpath, index=None)
+        df_put.to_csv(spath, index=None)
 
     
 # fs = FilterStocks(get_logger(), pd.read_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/fno_equity_tsym_token.csv'))

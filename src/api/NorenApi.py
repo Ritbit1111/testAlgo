@@ -51,11 +51,10 @@ class BuyorSell:
     Sell = 'S'
     
 def reportmsg(msg):
-    # print(msg)
+    print(msg)
     logger.debug(msg)
 
-def reporterror(msg):
-    #print(msg)
+def reporterror(msg): #print(msg)
     logger.error(msg)
 
 def reportinfo(msg):
@@ -84,6 +83,7 @@ class NorenApi:
           'watchlist_delete': '/DeleteMultiMWScrips',
           'placeorder': '/PlaceOrder',
           'modifyorder': '/ModifyOrder',
+          'ordermargin': '/GetOrderMargin',
           'cancelorder': '/CancelOrder',
           'exitorder': '/ExitSNOOrder',
           'product_conversion': '/ProductConversion',
@@ -649,6 +649,53 @@ class NorenApi:
         if resDict['stat'] != 'Ok':            
             return None
 
+        return resDict
+
+    def get_order_margin(self, exchange, tradingsymbol, quantity,
+                    price, product_type, buy_or_sell, 
+                     price_type, trigger_price=None,
+                    bookloss_price = 0.0, bookprofit_price = 0.0, trail_price = 0.0):
+        config = NorenApi.__service_config
+
+        #prepare the uri
+        url = f"{config['host']}{config['routes']['ordermargin']}" 
+        reportmsg(url)
+        #prepare the data
+        values              = {'ordersource':'API'}
+        values["uid"]       = self.__username
+        values["actid"]     = self.__accountid
+        values["exch"]      = exchange
+        values["tsym"]      = urllib.parse.quote_plus(tradingsymbol)
+        values["qty"]       = str(quantity)
+        values["prc"]       = str(price)
+        values["trgprc"]    = str(trigger_price)
+        values["prd"]       = product_type
+        values["trantype"]  = buy_or_sell
+        values["prctyp"]    = price_type
+        
+        #if cover order or high leverage order
+        if product_type == 'H':            
+            values["blprc"]       = str(bookloss_price)
+            #trailing price
+            if trail_price != 0.0:
+                values["trailprc"] = str(trail_price)
+
+        #bracket order
+        if product_type == 'B':            
+            values["blprc"]       = str(bookloss_price)
+            values["bpprc"]       = str(bookprofit_price)
+            #trailing price
+            if trail_price != 0.0:
+                values["trailprc"] = str(trail_price)
+
+        payload = 'jData=' + json.dumps(values) + f'&jKey={self.__susertoken}'
+        
+        reportmsg(payload)
+
+        res = requests.post(url, data=payload)
+        reportmsg(res.text)
+
+        resDict = json.loads(res.text)
         return resDict
 
     def position_product_conversion(self, exchange, tradingsymbol, quantity, new_product_type, previous_product_type, buy_or_sell, day_or_cf):

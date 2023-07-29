@@ -131,9 +131,10 @@ class FTDataService(DataService):
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{st.strftime("%d-%m-%Y")}.csv'
         )
+        self.save_day(st, exchange, symbol, tsym)
         df = self.read_time_series(path)
         df = df[(df['time'] >= st) & (df['time'] <= et)]
-        df = df.resample(rule=f'{interval}min', on='time').agg({'ssboe':lambda x:x.iloc[0], 'into':lambda x:x.iloc[0], 'inth':np.max, 'intl':np.min, 'intc':lambda x:x.iloc[-1], 'intv': np.sum, 'v': np.sum})
+        df = df.resample(rule=f'{interval}min', on='time', origin='start').agg({'ssboe':lambda x:x.iloc[0], 'into':lambda x:x.iloc[0], 'inth':np.max, 'intl':np.min, 'intc':lambda x:x.iloc[-1], 'intv': np.sum, 'v': np.sum})
         df = df.reset_index()
         return df
 
@@ -141,14 +142,16 @@ class FTDataService(DataService):
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{date.strftime("%d-%m-%Y")}.csv'
         )
+        self.save_day(date, exchange, symbol, tsym)
         df = self.read_time_series(path)
         df = df[df["time"] < date]
-        return df.iloc[0]["into"]
+        return df.iloc[0]["intc"]
 
     def get_prev_peak(self, date, exchange, symbol, tsym):
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{date.strftime("%d-%m-%Y")}.csv'
         )
+        self.save_day(date, exchange, symbol, tsym)
         df = self.read_time_series(path)
         df = df[df["time"] < date]
         return df["inth"].max()
@@ -157,16 +160,21 @@ class FTDataService(DataService):
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{date.strftime("%d-%m-%Y")}.csv'
         )
+        self.save_day(date, exchange, symbol, tsym)
         df = self.read_time_series(path)
         df = df[df["time"] < date]
         return df["intl"].min()
 
     def save_day(self, date: datetime.date, exchange: str, symbol: str, tsym: str):
-        self._verify_exchange(exchange=exchange)
-        token = self.get_token(exchange=exchange, trading_symbol=tsym)
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{date.strftime("%d-%m-%Y")}.csv'
         )
+        if os.path.exists(path):
+            df = self.read_time_series(path)
+            if df['time'].max() >= datetime.datetime(date.year, date.month, date.day, 15, 29) :
+                return
+        self._verify_exchange(exchange=exchange)
+        token = self.get_token(exchange=exchange, trading_symbol=tsym)
         st = get_epoch_time(date.strftime("%d-%m-%Y") + " " + "09:16:00")
         et = get_epoch_time(date.strftime("%d-%m-%Y") + " " + "15:30:00")
         res = self.api.get_time_price_series(

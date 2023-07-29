@@ -1,103 +1,106 @@
-import pandas as pd
-import datetime
-import time
-import asyncio
-import dotenv
+import random
+from time import tzname
+from click import clear
 import os
-from dataclasses import dataclass
-from src.logger import get_logger
-from src.FnOList import FnOEquityNSE
-from src.connectFlattrade import ConnectFlatTrade
-from src.api.noren import NorenApiPy, get_epoch_time
-from src.EquityToken import FetchToken
-from src.strategy.momentum import FilterStocks, BuyStocks
 import datetime
+from src.orders import OrderBook, Order, TranType
+from src.connectFlattrade import initialize
+import dotenv
+from src.logger import get_logger
+from src.DataFetcher import FTDataService
+from src.strategy.momentum import FilterStocks, BuyStocks
+import pandas as pd
+
+from src.utils.utils import get_epoch_time
 
 dotenv.load_dotenv()
 logger = get_logger(filename="./log")
+today = datetime.date.today() - datetime.timedelta(days=1)
+today_str = today.strftime("%d-%m-%Y")
+api = initialize(today_str, logger)
 
-# Init API
-if True:
-    con = ConnectFlatTrade(logger=logger)
-    resp = con.run()
-    con.set_token_to_dotenv()
+strat_momentum_path = os.path.join('apidata', 'momentum', today_str)
+os.makedirs(strat_momentum_path, exist_ok=True)
 
-token = os.getenv("TODAYSTOKEN")
-api = NorenApiPy()
-ret = api.set_session(userid="FT020770", password="", usertoken=token)
+ft_data = FTDataService(logger=logger, api=api, path='./apidata')
 
-# Get fno equity df
-if False:
-    fnoconnect = FnOEquityNSE(logger=logger, path="./nsedata/fo")
-    df = fnoconnect.get_latest(update=True)
+# Strategy begins
 
-    def add_token():
-        token_api = FetchToken(logger, api)
-        tsym, token = token_api.get_tsym_token(df["UNDERLYING"])
-        df["tsym"] = tsym
-        df["token"] = token
-        df.to_csv("./apidata/fno_equity_tsym_token.csv", index=False)
+# Step 1
+# Filter the list of top 10 gainers and losers
+fs = FilterStocks(logger, api, df = pd.read_csv('./apidata/NSE/symbol_token.csv'), path=strat_momentum_path)
+fs.add_data(date=today)
+fs.filter_data()
+df_buy = pd.read_csv(os.path.join(strat_momentum_path, 'buy.csv'))
+df_sell = pd.read_csv(os.path.join(strat_momentum_path, 'sell.csv'))
 
-    add_token()
+BALANCE = 50_00_000
+EQ_PER_SHARE = 1_00_000
+ob = OrderBook(BALANCE)
+# Buy Gainers, sell losers @ 9:30am (equity MIS)
+ordtime = datetime.datetime.strptime(today_str+" 09:31:00", "%d-%m-%Y %H:%M:%S")
+exch = "NSE"
+for _, row in df_buy.iterrows():
+    symbol, tsym, token = row['symbol'], row['tsym'], row['token']
+    ft_data.save_day(today, exchange=exch, symbol=symbol, tsym=tsym)
+    avgprc = ft_data.get_quote(ordtime, exch, symbol, tsym)
+    qty = int(EQ_PER_SHARE/avgprc)
+    norenordernum = random.randrange(1_000_000, 10_000_000)
+    ord = Order(norenordernum, ordtime=ordtime, sym=symbol, tsym=tsym, token=token, ls=1, avgprice=avgprc, qty=qty, tranType=TranType.Buy)
+    if ob.add(ord):
+        logger.info("Order placed %s, %s, %s", ordtime, tsym, avgprc)
+    else:
+        logger.error("Unable to place Order  %s, %s, %s", ordtime, tsym, avgprc)
 
-df_tsym = pd.read_csv("./apidata/fno_equity_tsym_token.csv")
+# for _, row in df_sell.iterrows():
+#     symbol, tsym, token = row['symbol'], row['tsym'], row['token']
+#     ft_data.save_day(today, exchange=exch, symbol=symbol, tsym=tsym)
+#     avgprc = ft_data.get_quote(ordtime, exch, symbol, tsym)
+#     qty = int(EQ_PER_SHARE/avgprc)
+#     norenordernum = random.randrange(1_000_000, 10_000_000)
+#     ord = Order(norenordernum, ordtime=ordtime, sym=symbol, tsym=tsym, token=token, ls=1, avgprice=avgprc, qty=qty, tranType=TranType.Buy)
+#     if ob.add(ord):
+#         logger.info("Order placed %s, %s, %s", ordtime, tsym, avgprc)
 
-# Get top 10 losers and gainers F&O stock for trading (9:15-9:30 candle)
+# Step 2
+# Check for avg hourly gains and buy call options
+st = get_epoch_time(f"{today_str} 09:15:00")
+et = get_epoch_time(f"{today_str} 12:14:00")
+def step1(st, et):
+    for _, row in df_buy.iterrows():
+        symbol, tsym, token = row['symbol'], row['tsym'], row['token']
+        hrly_df = ft_data.get_time_price_series(exch, symbol, tsym, st, et, 60)
+        hrly_df['change'] = hrly_df['intc'] - hrly_df['into']
+        hrly_df['perc'] = (hrly_df['change'] / hrly_df['intc']) * 100
+        mean_perc = hrly_df.perc.mean()
+        if (mean_perc > 0.2):
+            # Place order for call options
+            # Find tsym
+            # Buy call options
+            # Margin is the total price only, no worries in buying call options
+            # avgprc = ft_data.get_quote(ordtime, exch, symbol, tsym)
+            # qty = int(EQ_PER_SHARE/avgprc)
+            pass
 
-if False:
-    fs = FilterStocks(logger, api, df_tsym)
-    fs.add_data(date=datetime.date.today().strftime("%d-%m-%Y"))
-    fs.filter_data()
+# Step 3
+# Exit both stocks and options when current price is < 0.2% of peak today
+def step3(t):
+    for _, row in df_buy.iterrows():
+        symbol, tsym, token = row['symbol'], row['tsym'], row['token']
+        quote = ft_data.get_quote(t, exch, symbol, tsym, st)
+        prev_peak = ft_data.get_prev_peak(t, exch, symbol, tsym, st)
+        perc = ((quote-prev_peak)/prev_peak) * 100
+        if (perc > 0.2):
+            # Place order to sell call options and stocks by looking into the order book
+            # Find tsym, qty from order book
+            # Sell call options
+            # avgprc = ft_data.get_quote(ordtime, exch, symbol, tsym)
+            pass
 
-# Buy and short stocks ~5lacs each at 9:35am
-if True:
-    call_df = pd.read_csv("/Users/nbrk/AlgoTrade/testAlgo/apidata/call_today.csv")
-    put_df = pd.read_csv("/Users/nbrk/AlgoTrade/testAlgo/apidata/put_today.csv")
-    bs = BuyStocks(logger, api, call_df, put_df)
-    buy_df = bs.buy_init_stocks()
-    sell_df = bs.short_init_stocks()
-
-from src.api.NorenApi import TimePriceParams, BuyorSell, ProductType, PriceType
-
-# Monitor
-buy_df = pd.read_csv("/Users/nbrk/AlgoTrade/testAlgo/apidata/equity_buy.csv")
-sell_df = pd.read_csv("/Users/nbrk/AlgoTrade/testAlgo/apidata/equity_short.csv")
-todaydate = datetime.date.today().strftime("%d-%m-%Y")
-# tpp_list = [TimePriceParams("NSE", t['token'], get_epoch_time(todaydate+" 09:15:00"), get_epoch_time(todaydate+" 12:15:00"), 60) for _, t in buy_df.iterrows()]
-# print(tpp_list)
-# print(tpp_list)
-
-# Buy options
-
-options_df = pd.read_csv("https://shoonya.finvasia.com/NFO_symbols.txt.zip")
+#Step 4
+# Call step3 in 2 mins interval (if there remains any order to sell)
+# Call step2 hourly
+# Till the market closes
 
 
-def get_trading_symbol(equity_symbol, expiry, call_put: bool, strike_price):
-    ans = options_df[
-        (options_df["Symbol"] == equity_symbol)
-        & (options_df["Expiry"] == expiry)
-        & (options_df["StrikePrice"] == strike_price)
-        & (options_df["OptionType"] == "CE" if call_put else "PE")
-    ]
-    return ans["TradingSymbol"], ans["token"], ans["LotSize"]
-
-
-for _, t in buy_df.iterrows():
-    strike_price = 60
-    tsym, token, lotsize = get_trading_symbol(
-        t["Symbol"], "27-07-2023", 1, strike_price
-    )
-    resp = api.place_order(
-        buy_or_sell=BuyorSell.Buy,
-        product_type=ProductType.Delivery,
-        exchange="NFO",
-        tradingsymbol=tsym,
-        quantity=lotsize,
-        discloseqty=0,
-        price_type=PriceType.Market,
-        price=0,
-        trigger_price=None,
-        retention="DAY",
-        remarks="",
-    )
-    break
+    
