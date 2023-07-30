@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
+from ast import parse
 import numpy as np
 import datetime
 from email.utils import getaddresses
 import pandas as pd
 import time
+
+from pytz import HOUR
 from src.api.noren import NorenApiPy
 import os
 import logging
@@ -54,6 +57,11 @@ ExchangeInstDict = {
 }
 
 
+class OptionType:
+    PUT = "PE"
+    CALL = "CE"
+
+
 class UnknownExchangeException(Exception):
     def __init__(self, exchange=None):
         msg = "Exchange not available in exchange array"
@@ -81,6 +89,26 @@ class FTDataService(DataService):
     def _make_dir(self, path: os.path):
         os.makedirs(path, exist_ok=True)
 
+    def get_closest_option_scrip(
+        self, symbol: str, date: datetime.datetime, quoteprice: float, option_type
+    ):
+        path = os.path.join(self.nfo_path, "symbol_token.csv")
+        date = date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+        df = pd.read_csv(path, parse_dates=["expiry"])
+        df = df[
+            (df["symbol"] == symbol)
+            & (df["optiontype"] == option_type)
+            & (df["expiry"] >= date)
+        ]
+        df["deltadays"] = df["expiry"] - date
+        df["deltaprice"] = abs(df["strikeprice"] - quoteprice)
+        df = df.nsmallest(1, ["deltadays", "deltaprice"], keep="all")
+        if df.shape[0] == 1:
+            return df.iloc[0]
+        self.logger.error("Unable to find unique scrip")
+        print(df)
+        return None
+
     def get_token(self, exchange, trading_symbol) -> str | None:
         self._verify_exchange(exchange=exchange)
         path = os.path.join(self.path, exchange, "symbol_token.csv")
@@ -88,6 +116,12 @@ class FTDataService(DataService):
         if trading_symbol in df.index:
             return df.loc[trading_symbol]["token"]
         return None
+    
+    def get_nfo_info(self, trading_symbol):
+        df = pd.read_csv(self.nfo_path, index_col="tsym")
+        if trading_symbol in df.index:
+            return df.loc[trading_symbol]
+        
 
     def search_token(self, exchange, symbol, instname=None) -> list[dict]:
         self._verify_exchange(exchange=exchange)
@@ -117,37 +151,51 @@ class FTDataService(DataService):
 
     def get_time_price_series(
         self,
-        exchange,
-        symbol,
-        tsym,
-        start_time_epoch: float,
-        end_time_epoch: float,
+        exchange: str,
+        symbol: str,
+        tsym: str,
+        start_time: datetime.datetime,
+        end_time: datetime.datetime,
         interval: int,
     ):
-        st = get_datetime(start_time_epoch).replace(tzinfo=None)
-        et = get_datetime(end_time_epoch).replace(tzinfo=None)
-        if et-st>datetime.timedelta(days=1):
-            raise Exception("This function only works for start and end times of same day")
+        if end_time - start_time > datetime.timedelta(days=1):
+            raise Exception(
+                "This function only works for start and end times of same day"
+            )
+        start_time = start_time.replace(tzinfo=None)
+        end_time = end_time.replace(tzinfo=None)
         path = os.path.join(
-            self.path, exchange, symbol, f'{tsym}_{st.strftime("%d-%m-%Y")}.csv'
+            self.path, exchange, symbol, f'{tsym}_{start_time.strftime("%d-%m-%Y")}.csv'
         )
         self.save_day(st, exchange, symbol, tsym)
         df = self.read_time_series(path)
-        df = df[(df['time'] >= st) & (df['time'] <= et)]
-        df = df.resample(rule=f'{interval}min', on='time', origin='start').agg({'ssboe':lambda x:x.iloc[0], 'into':lambda x:x.iloc[0], 'inth':np.max, 'intl':np.min, 'intc':lambda x:x.iloc[-1], 'intv': np.sum, 'v': np.sum})
+        df = df[(df["time"] >= start_time) & (df["time"] <= end_time)]
+        df = df.resample(rule=f"{interval}min", on="time", origin="start").agg(
+            {
+                "ssboe": lambda x: x.iloc[0],
+                "into": lambda x: x.iloc[0],
+                "inth": np.max,
+                "intl": np.min,
+                "intc": lambda x: x.iloc[-1],
+                "intv": np.sum,
+                "v": np.sum,
+            }
+        )
         df = df.reset_index()
         return df
 
-    def get_quote(self, date, exchange, symbol, tsym):
+    def get_quote(self, ordtime, exchange, symbol, tsym):
         path = os.path.join(
-            self.path, exchange, symbol, f'{tsym}_{date.strftime("%d-%m-%Y")}.csv'
+            self.path, exchange, symbol, f'{tsym}_{ordtime.strftime("%d-%m-%Y")}.csv'
         )
-        self.save_day(date, exchange, symbol, tsym)
+        self.save_day(ordtime, exchange, symbol, tsym)
         df = self.read_time_series(path)
-        df = df[df["time"] < date]
+        df = df[df["time"] < ordtime]
         return df.iloc[0]["intc"]
 
-    def get_prev_peak(self, date, exchange, symbol, tsym):
+    def get_prev_peak(
+        self, date: datetime.datetime, exchange: str, symbol: str, tsym: str
+    ):
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{date.strftime("%d-%m-%Y")}.csv'
         )
@@ -156,7 +204,9 @@ class FTDataService(DataService):
         df = df[df["time"] < date]
         return df["inth"].max()
 
-    def get_prev_trough(self, date, exchange, symbol, tsym):
+    def get_prev_trough(
+        self, date: datetime.datetime, exchange: str, symbol: str, tsym: str
+    ):
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{date.strftime("%d-%m-%Y")}.csv'
         )
@@ -165,18 +215,20 @@ class FTDataService(DataService):
         df = df[df["time"] < date]
         return df["intl"].min()
 
-    def save_day(self, date: datetime.date, exchange: str, symbol: str, tsym: str):
+    def save_day(self, date: datetime.datetime, exchange: str, symbol: str, tsym: str):
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{date.strftime("%d-%m-%Y")}.csv'
         )
         if os.path.exists(path):
             df = self.read_time_series(path)
-            if df['time'].max() >= datetime.datetime(date.year, date.month, date.day, 15, 29) :
+            if df["time"].max() >= datetime.datetime(
+                date.year, date.month, date.day, 15, 29
+            ):
                 return
         self._verify_exchange(exchange=exchange)
         token = self.get_token(exchange=exchange, trading_symbol=tsym)
-        st = get_epoch_time(date.strftime("%d-%m-%Y") + " " + "09:16:00")
-        et = get_epoch_time(date.strftime("%d-%m-%Y") + " " + "15:30:00")
+        st = date.replace(hour=9, minute=30)
+        et = date.replace(hour=15, minute=30)
         res = self.api.get_time_price_series(
             exchange=exchange, token=token, starttime=st, endtime=et, interval=1
         )
@@ -232,6 +284,7 @@ def update_nfo_symbol_token(path):
             "Instrument": "instrument",
             "OptionType": "optiontype",
             "StrikePrice": "strikeprice",
+            "Expiry": "expiry",
             "TickSize": "ticksize",
         },
         inplace=True,
@@ -240,8 +293,10 @@ def update_nfo_symbol_token(path):
         items=[
             "symbol",
             "tsym",
-            "expiry",
             "token",
+            "expiry",
+            "optiontype",
+            "instrument",
             "lotsize",
             "optiontype",
             "strikeprice",
