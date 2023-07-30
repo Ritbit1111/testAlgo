@@ -74,12 +74,11 @@ for idx, df in enumerate([df_buy, df_sell]):
 
 # Step 2
 # Check for avg hourly gains and buy call options
-st = today.replace(hour=9, minute=15)
-et = today.replace(hour=12, minute=14)
 OPT_BUY_THRESHOLD = 0.2
 OPT_SELL_THRESHOLD = 0.2
 
-def step2(st, et):
+def step2_buyoptions(st):
+    et = st - datetime.timedelta(hours=3)
     for idx, df in [df_buy, df_sell]:
         for _, row in df.iterrows():
             symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
@@ -116,7 +115,8 @@ def step2(st, et):
 
 # Step 3
 # Exit both stocks and options when current price is < 0.2% of peak today
-def step3(t):
+def step3_exit(t):
+    print("Starting Step 3")
     for idx, df in [df_buy, df_sell]:
         for _, row in df.iterrows():
             symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
@@ -169,8 +169,21 @@ def step3(t):
                     else:
                         logger.error("Unable to place Order  %s, %s, %s", ordtime, tsym, avgprc)
 
-
 # Step 4
 # Call step3 in 2 mins interval (if there remains any order to sell)
 # Call step2 hourly
 # Till the market closes
+
+program_st=today.replace(hour=12, minute=16, second=0, microsecond=0)
+program_et=today.replace(hour=15, minute=25, second=0, microsecond=0)
+
+call_buy_1=today.replace(hour=12, minute=15, second=0, microsecond=0)
+buy_call_time = [call_buy_1, call_buy_1+datetime.timedelta(hours=1), call_buy_1+datetime.timedelta(hours=2)]
+
+for dt in pd.date_range(start=program_st, end=program_et, freq='1min'):
+    print('-----------------------------------------')
+    print(f'Time : {dt}')
+    if dt in buy_call_time:
+        step2_buyoptions(dt)
+    else:
+        step3_exit(dt)
