@@ -39,14 +39,29 @@ class Order:
 
 class OrderBook:
     def __init__(self, balance) -> None:
-        self.balance = balance
+        self.opening_balance = balance
+        self._balance = balance
         self.ob_eq:List[Order]  = []
         self.ob_opt:List[Order] = []
+    
+    def __repr__(self) -> str:
+        bal   = f'Current balance is:     {self.balance()}'
+        pnl   = f'Current PnL :           {self.pnl()}'
+        obeq  = f'Equity Order Book:\n .  {self.ob_eq}'
+        obfno = f'FnO Order Book:\n .     {self.ob_eq}'
+        return '\n'.join([bal, pnl, obeq, obfno])
+
+    @property
+    def balance(self):
+        return self._balance
+
+    def pnl(self):
+        return self._balance - self.opening_balance
     
     def balcheck(self, ord:Order):
         if ord.tranType == TranType.Sell:
             return True
-        if ord.totalprice() <= self.balance:
+        if ord.totalprice() <= self._balance:
             return True
         print('Insufficient balance!')
         return False
@@ -63,12 +78,14 @@ class OrderBook:
         else:
             return self.addEquityOrder(ord)
 
-    def addFnoOrder(self, order):
-        self.ob_opt.append(order)
+    def addFnoOrder(self, ord:Order):
+        self.ob_opt.append(ord)
+        self._balance -= ord.totalprice() * (1 if ord.tranType==TranType.Buy else -1)
         return True
 
     def addEquityOrder(self, order):
         self.ob_eq.append(order)
+        self._balance -= ord.totalprice() * (1 if ord.tranType==TranType.Buy else -1)
         return True
     
     def active_equity_qty(self, symbol:str):
@@ -92,6 +109,3 @@ class OrderBook:
                 del tsym_qty[ts]
 
         return tsym_qty
-    
-    def get_pnl(self):
-        return 

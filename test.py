@@ -115,7 +115,7 @@ def step2_buyoptions(st):
 
 # Step 3
 # Exit both stocks and options when current price is < 0.2% of peak today
-def step3_exit(t):
+def step3_exit(t, force_exit=False):
     print("Starting Step 3")
     for idx, df in [df_buy, df_sell]:
         for _, row in df.iterrows():
@@ -124,7 +124,10 @@ def step3_exit(t):
             prev_peak = ft_data.get_prev_peak(t, exch, symbol, tsym, st)
             perc = ((quote - prev_peak) / prev_peak) * 100
             call_put = 1 if idx==0 else -1
-            exit_condition = (abs(perc) > OPT_SELL_THRESHOLD) and (perc * call_put) < 0
+            if force_exit:
+                exit_condition = True
+            else:
+                exit_condition = (abs(perc) > OPT_SELL_THRESHOLD) and (perc * call_put) < 0
             if exit_condition:
                 # Equities : Sell purchased equity and buy shorted ones
                 qty = ob.active_equity_qty(symbol)
@@ -187,3 +190,10 @@ for dt in pd.date_range(start=program_st, end=program_et, freq='1min'):
         step2_buyoptions(dt)
     else:
         step3_exit(dt)
+
+def squareOff(ob):
+    step3_exit(today.replace(hour=15, minute=26, second=0, microsecond=0), force_exit=True)
+
+squareOff()
+
+print(ob)
