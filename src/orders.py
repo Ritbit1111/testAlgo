@@ -1,7 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict, field 
 import datetime
+import pandas as pd
 from typing import List
-
 
 class Instrument:
     Equity="Eq"
@@ -33,6 +33,7 @@ class Order:
     tranType:str = TranType.Buy
     status:str = OrdStatus.New
 
+    @property
     def totalprice(self):
         return self.avgprice * self.qty
 
@@ -45,23 +46,31 @@ class OrderBook:
         self.ob_opt:List[Order] = []
     
     def __repr__(self) -> str:
-        bal   = f'Current balance is:     {self.balance()}'
-        pnl   = f'Current PnL :           {self.pnl()}'
-        obeq  = f'Equity Order Book:\n .  {self.ob_eq}'
-        obfno = f'FnO Order Book:\n .     {self.ob_eq}'
+        bal   = f'Current balance is:     {self.balance}'
+        pnl   = f'Current PnL :           {self.pnl}'
+        obeq  = f'Equity Order Book:\n .  {self.print_order_list(self.ob_eq)}'
+        obfno = f'FnO Order Book:\n .     {self.print_order_list(self.ob_opt)}'
         return '\n'.join([bal, pnl, obeq, obfno])
+
+    def print_order_list(self, ol):
+        li = [asdict(ord) for ord in ol]
+        df = pd.DataFrame(li)
+        if df.empty:
+            return "Empty List"
+        return df.__repr__()
 
     @property
     def balance(self):
         return self._balance
 
+    @property
     def pnl(self):
         return self._balance - self.opening_balance
     
     def balcheck(self, ord:Order):
         if ord.tranType == TranType.Sell:
             return True
-        if ord.totalprice() <= self._balance:
+        if ord.totalprice <= self._balance:
             return True
         print('Insufficient balance!')
         return False
@@ -80,12 +89,12 @@ class OrderBook:
 
     def addFnoOrder(self, ord:Order):
         self.ob_opt.append(ord)
-        self._balance -= ord.totalprice() * (1 if ord.tranType==TranType.Buy else -1)
+        self._balance -= ord.totalprice * (1 if ord.tranType==TranType.Buy else -1)
         return True
 
-    def addEquityOrder(self, order):
-        self.ob_eq.append(order)
-        self._balance -= ord.totalprice() * (1 if ord.tranType==TranType.Buy else -1)
+    def addEquityOrder(self, ord:Order):
+        self.ob_eq.append(ord)
+        self._balance -= ord.totalprice * (1 if ord.tranType==TranType.Buy else -1)
         return True
     
     def active_equity_qty(self, symbol:str):

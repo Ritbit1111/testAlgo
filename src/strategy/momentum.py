@@ -10,29 +10,34 @@ from src.api.noren import NorenApiPy
 from src.api.NorenApi import TimePriceParams, BuyorSell, ProductType, PriceType
 from src.logger import get_logger
 import asyncio
-from src.utils.utils import get_epoch_time
+from src.utils.utils import epochIndian, get_epoch_time
 import os
 import datetime
+from src.DataFetcher import FTDataService, OptionType
 
 class FilterStocks:
-    def __init__(self, logger, api:NorenApiPy, df:pd.DataFrame, path, threshold_call=0.2, threshold_put=-0.2):
+    def __init__(self, logger, api:NorenApiPy, df:pd.DataFrame, date:datetime.datetime, path, threshold_call=0.2, threshold_put=-0.2):
         self.df = df
         self.logger = logger
         self.api = api
+        self.date = date
         self.thput=threshold_put
         self.thcall=threshold_call
         self.path = path
+
     
     async def get_data(self, exchange, starttime, endtime, interval=1):
-        tpp_list = [TimePriceParams(exchange, t['token'], starttime, endtime, interval) for _, t in self.df.iterrows()]
+        tpp_list = []
+        for _, t in self.df.iterrows():
+            tpp_list.append(TimePriceParams(exchange, t['token'], starttime, endtime, interval))
         return await self.api.get_time_price_series_tpplist(tpp_list)
     
-    def add_data(self, date:datetime.datetime):
+    def add_data(self):
         mopath = os.path.join(self.path, 'market_open.csv')
-        if os.path.exists(mopath):
-            return
-        st = get_epoch_time(date.strftime("%d-%m-%Y")+" 09:15:00")
-        et = get_epoch_time(date.strftime("%d-%m-%Y")+" 09:30:00") 
+        # if os.path.exists(mopath):
+        #     return
+        st = epochIndian(self.date.replace(hour=9, minute=15, second=0))
+        et = epochIndian(self.date.replace(hour=9, minute=30, second=0))
         raw_data = asyncio.run(self.get_data("NSE", st, et, 15))
         df_markte_open = pd.DataFrame([tdata[0] for tdata in raw_data])
         df_market_open = pd.concat([self.df, df_markte_open], axis=1)
@@ -43,8 +48,8 @@ class FilterStocks:
         bpath = os.path.join(self.path, 'buy.csv')
         spath = os.path.join(self.path, 'sell.csv')
         mopath = os.path.join(self.path, 'market_open.csv')
-        if os.path.exists(bpath) and os.path.exists(spath):
-            return
+        # if os.path.exists(bpath) and os.path.exists(spath):
+        #     return
         df_market_open = pd.read_csv(mopath)
         df_market_open['change'] = df_market_open['intc'] - df_market_open['into']
         df_market_open['chperc'] = (df_market_open['change']/df_market_open['into'])*100
@@ -55,7 +60,7 @@ class FilterStocks:
         df_put = df_put[df_put['chperc']<self.thput]
         df_call.to_csv(bpath, index=None)
         df_put.to_csv(spath, index=None)
-
+    
     
 # fs = FilterStocks(get_logger(), pd.read_csv('/Users/nbrk/AlgoTrade/testAlgo/apidata/fno_equity_tsym_token.csv'))
 

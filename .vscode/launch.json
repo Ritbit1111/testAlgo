@@ -8,7 +8,7 @@
       "name": "test2.py",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}/test2.py",
+      "program": "${workspaceFolder}/test.py",
       "justMyCode": true
     },
     {

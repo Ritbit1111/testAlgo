@@ -10,7 +10,7 @@ from pytz import HOUR
 from src.api.noren import NorenApiPy
 import os
 import logging
-from src.utils.utils import get_epoch_time, get_datetime
+from src.utils.utils import epochIndian, get_epoch_time, get_datetime
 
 
 class DataService(ABC):
@@ -90,17 +90,17 @@ class FTDataService(DataService):
         os.makedirs(path, exist_ok=True)
 
     def get_closest_option_scrip(
-        self, symbol: str, date: datetime.datetime, quoteprice: float, option_type
+        self, symbol: str, expiry: datetime.datetime, quoteprice: float, option_type
     ):
         path = os.path.join(self.nfo_path, "symbol_token.csv")
-        date = date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+        expiry = expiry.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
         df = pd.read_csv(path, parse_dates=["expiry"])
         df = df[
             (df["symbol"] == symbol)
             & (df["optiontype"] == option_type)
-            & (df["expiry"] >= date)
+            & (df["expiry"] >= expiry)
         ]
-        df["deltadays"] = df["expiry"] - date
+        df["deltadays"] = df["expiry"] - expiry
         df["deltaprice"] = abs(df["strikeprice"] - quoteprice)
         df = df.nsmallest(1, ["deltadays", "deltaprice"], keep="all")
         if df.shape[0] == 1:
@@ -116,12 +116,11 @@ class FTDataService(DataService):
         if trading_symbol in df.index:
             return df.loc[trading_symbol]["token"]
         return None
-    
+
     def get_nfo_info(self, trading_symbol):
         df = pd.read_csv(self.nfo_path, index_col="tsym")
         if trading_symbol in df.index:
             return df.loc[trading_symbol]
-        
 
     def search_token(self, exchange, symbol, instname=None) -> list[dict]:
         self._verify_exchange(exchange=exchange)
@@ -167,9 +166,9 @@ class FTDataService(DataService):
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{start_time.strftime("%d-%m-%Y")}.csv'
         )
-        self.save_day(st, exchange, symbol, tsym)
+        self.save_day(start_time, exchange, symbol, tsym)
         df = self.read_time_series(path)
-        df = df[(df["time"] >= start_time) & (df["time"] <= end_time)]
+        df = df[(df["time"] >= start_time) & (df["time"] < end_time)]
         df = df.resample(rule=f"{interval}min", on="time", origin="start").agg(
             {
                 "ssboe": lambda x: x.iloc[0],
@@ -219,18 +218,20 @@ class FTDataService(DataService):
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{date.strftime("%d-%m-%Y")}.csv'
         )
+        dayst = datetime.datetime( date.year, date.month, date.day, 9, 15)
+        dayend = datetime.datetime( date.year, date.month, date.day, 15, 29)
         if os.path.exists(path):
             df = self.read_time_series(path)
-            if df["time"].max() >= datetime.datetime(
-                date.year, date.month, date.day, 15, 29
-            ):
+            if df["time"].min() <= dayst and df["time"].max() >= dayend:
                 return
         self._verify_exchange(exchange=exchange)
         token = self.get_token(exchange=exchange, trading_symbol=tsym)
-        st = date.replace(hour=9, minute=30)
-        et = date.replace(hour=15, minute=30)
         res = self.api.get_time_price_series(
-            exchange=exchange, token=token, starttime=st, endtime=et, interval=1
+            exchange=exchange,
+            token=token,
+            starttime=epochIndian(dayst),
+            endtime=epochIndian(dayend),
+            interval=1,
         )
         df = pd.DataFrame(res)
         df["time"] = pd.to_datetime(df["time"], format="%d-%m-%Y %H:%M:%S")
@@ -267,6 +268,11 @@ class FTDataService(DataService):
         }
         df = pd.read_csv(path, dtype=dtypedict, parse_dates=["time"])
         return df
+    
+    def active_FnO_symbol_list(self, expiry:datetime.datetime, instrument="OPTSTK"):
+        df = pd.read_csv(os.path.join(self.nfo_path, 'symbol_token.csv'),  parse_dates=['expiry'])
+        df = df[(df['expiry']>=expiry) & (df['instrument']==instrument)]
+        return df['symbol'].unique()
 
     def update_nfo_symbol_token(self):
         path = os.path.join(self.path, "NFO", "symbol_token.csv")

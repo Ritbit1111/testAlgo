@@ -24,6 +24,14 @@ os.makedirs(strat_momentum_path, exist_ok=True)
 
 ft_data = FTDataService(logger=logger, api=api, path="./apidata")
 
+activeFnOsymbols = ft_data.active_FnO_symbol_list(today)
+df = pd.read_csv("./apidata/NSE/symbol_token.csv")
+delrows = []
+for index, row in df.iterrows():
+    if row['symbol'] not in activeFnOsymbols:
+        delrows.append(index)
+df = df.drop(delrows, axis=0).reset_index(drop=True)
+
 # Strategy begins
 
 # Step 1
@@ -31,13 +39,17 @@ ft_data = FTDataService(logger=logger, api=api, path="./apidata")
 fs = FilterStocks(
     logger,
     api,
-    df=pd.read_csv("./apidata/NSE/symbol_token.csv"),
+    date=today,
+    df=df,
     path=strat_momentum_path,
 )
-fs.add_data(date=today)
+fs.add_data()
 fs.filter_data()
-df_buy = pd.read_csv(os.path.join(strat_momentum_path, "buy.csv"))
-df_sell = pd.read_csv(os.path.join(strat_momentum_path, "sell.csv"))
+
+EQUITY_BUY_COUNT=5
+EQUITY_SELL_COUNT=5
+df_buy  = pd.read_csv(os.path.join(strat_momentum_path, "buy.csv"), nrows=EQUITY_BUY_COUNT)
+df_sell = pd.read_csv(os.path.join(strat_momentum_path, "sell.csv"), nrows=EQUITY_SELL_COUNT)
 
 BALANCE = 50_00_000
 BALANCE_PER_SHARE = 1_00_000
@@ -45,7 +57,6 @@ MARGIN_PER_OPT = 1_00_000
 ob = OrderBook(BALANCE)
 # Buy Gainers, sell losers @ 9:30am (equity MIS)
 ordtime = datetime.datetime.strptime(today_str + " 09:31:00", "%d-%m-%Y %H:%M:%S")
-
 for idx, df in enumerate([df_buy, df_sell]):
     exch = "NSE"
     for _, row in df.iterrows():
@@ -71,35 +82,35 @@ for idx, df in enumerate([df_buy, df_sell]):
             logger.info("Order placed %s, %s, %s", ordtime, tsym, avgprc)
         else:
             logger.error("Unable to place Order  %s, %s, %s", ordtime, tsym, avgprc)
-
+print(ob)
 # Step 2
 # Check for avg hourly gains and buy call options
 OPT_BUY_THRESHOLD = 0.2
 OPT_SELL_THRESHOLD = 0.2
 
-def step2_buyoptions(st):
-    et = st - datetime.timedelta(hours=3)
-    for idx, df in [df_buy, df_sell]:
+def step2_buyoptions(ordtime):
+    st = ordtime - datetime.timedelta(hours=3)
+    for idx, df in enumerate([df_buy, df_sell]):
         for _, row in df.iterrows():
             symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
-            hrly_df = ft_data.get_time_price_series(exch, symbol, tsym, st, et, 60)
+            hrly_df = ft_data.get_time_price_series(exch, symbol, tsym, st, ordtime, 60)
             hrly_df["change"] = hrly_df["intc"] - hrly_df["into"]
             hrly_df["perc"] = (hrly_df["change"] / hrly_df["intc"]) * 100
             mean_perc = hrly_df.perc.mean()
             call_put = 1 if idx==0 else -1
             buy_condition = (abs(mean_perc) > OPT_BUY_THRESHOLD) and ( mean_perc * call_put) > 0
             if buy_condition:
-                qp = ft_data.get_quote(et, "NSE", symbol, tsym)
+                qp = ft_data.get_quote(ordtime, "NSE", symbol, tsym)
                 opt_type = OptionType.CALL if call_put == 1 else OptionType.PUT
-                nfo_data = ft_data.get_closest_option_scrip( symbol=symbol, date=datetime.datetime(today), quoteprice=qp, option_type=opt_type,)
+                nfo_data = ft_data.get_closest_option_scrip( symbol=symbol, expiry=ordtime, quoteprice=qp, option_type=opt_type,)
                 tsym_opt, token_opt, ls, sp = ( nfo_data["tsym"], nfo_data["token"], nfo_data["lotsize"], nfo_data["strikeprice"],)
 
                 ft_data.save_day(today, exchange="NFO", symbol=symbol, tsym=tsym_opt)
-                avgprc = ft_data.get_quote(et, "NFO", symbol, tsym_opt)
+                avgprc = ft_data.get_quote(st, "NFO", symbol, tsym_opt)
                 qty = int(MARGIN_PER_OPT / avgprc)
                 qty = (qty // ls) * ls
                 norenordernum = random.randrange(1_000_000, 10_000_000)
-                ord = Order( norenordernum, ordtime=et, sym=symbol, tsym=tsym_opt,
+                ord = Order( norenordernum, ordtime=st, sym=symbol, tsym=tsym_opt,
                     token=token_opt,
                     instrument=Instrument.OptionsStock,
                     ls=ls,
@@ -177,13 +188,14 @@ def step3_exit(t, force_exit=False):
 # Call step2 hourly
 # Till the market closes
 
-program_st=today.replace(hour=12, minute=16, second=0, microsecond=0)
+program_st=today.replace(hour=12, minute=15, second=0, microsecond=0)
 program_et=today.replace(hour=15, minute=25, second=0, microsecond=0)
 
 call_buy_1=today.replace(hour=12, minute=15, second=0, microsecond=0)
 buy_call_time = [call_buy_1, call_buy_1+datetime.timedelta(hours=1), call_buy_1+datetime.timedelta(hours=2)]
 
 for dt in pd.date_range(start=program_st, end=program_et, freq='1min'):
+    dt = dt.to_pydatetime()
     print('-----------------------------------------')
     print(f'Time : {dt}')
     if dt in buy_call_time:
