@@ -118,7 +118,7 @@ class FTDataService(DataService):
         return None
 
     def get_nfo_info(self, trading_symbol):
-        df = pd.read_csv(self.nfo_path, index_col="tsym")
+        df = pd.read_csv(os.path.join(self.nfo_path, 'symbol_token.csv'), index_col="tsym")
         if trading_symbol in df.index:
             return df.loc[trading_symbol]
 
@@ -190,6 +190,9 @@ class FTDataService(DataService):
         self.save_day(ordtime, exchange, symbol, tsym)
         df = self.read_time_series(path)
         df = df[df["time"] < ordtime]
+        if df.empty:
+            self.logger.error("No data available for : %s at %s", tsym, ordtime)
+            return None
         return df.iloc[0]["intc"]
 
     def get_prev_peak(
@@ -201,6 +204,9 @@ class FTDataService(DataService):
         self.save_day(date, exchange, symbol, tsym)
         df = self.read_time_series(path)
         df = df[df["time"] < date]
+        if df.empty:
+            self.logger.error("No data available for : %s at %s", tsym, ordtime)
+            return None
         return df["inth"].max()
 
     def get_prev_trough(
@@ -212,6 +218,9 @@ class FTDataService(DataService):
         self.save_day(date, exchange, symbol, tsym)
         df = self.read_time_series(path)
         df = df[df["time"] < date]
+        if df.empty:
+            self.logger.error("No data available for : %s at %s", tsym, ordtime)
+            return None
         return df["intl"].min()
 
     def save_day(self, date: datetime.datetime, exchange: str, symbol: str, tsym: str):
@@ -221,6 +230,7 @@ class FTDataService(DataService):
         dayst = datetime.datetime( date.year, date.month, date.day, 9, 15)
         dayend = datetime.datetime( date.year, date.month, date.day, 15, 29)
         if os.path.exists(path):
+            return
             df = self.read_time_series(path)
             if df["time"].min() <= dayst and df["time"].max() >= dayend:
                 return

@@ -34,13 +34,18 @@ class FilterStocks:
     
     def add_data(self):
         mopath = os.path.join(self.path, 'market_open.csv')
-        # if os.path.exists(mopath):
-        #     return
+        if os.path.exists(mopath):
+            return
         st = epochIndian(self.date.replace(hour=9, minute=15, second=0))
         et = epochIndian(self.date.replace(hour=9, minute=30, second=0))
         raw_data = asyncio.run(self.get_data("NSE", st, et, 15))
-        df_markte_open = pd.DataFrame([tdata[0] for tdata in raw_data])
-        df_market_open = pd.concat([self.df, df_markte_open], axis=1)
+        df_market_open = pd.DataFrame([tdata[0] for tdata in raw_data])
+        df_market_open['token'] = pd.to_numeric(df_market_open['token'])
+        df_market_open = df_market_open.set_index('token', drop=True)
+        self.df = self.df.set_index('token', drop=True)
+        df_market_open = pd.concat([self.df, df_market_open], axis=1)
+        df_market_open = df_market_open.reset_index()
+        self.df = self.df.reset_index()
         self.df_market_open = df_market_open
         self.df_market_open.to_csv(mopath, index=None)
     
@@ -48,8 +53,8 @@ class FilterStocks:
         bpath = os.path.join(self.path, 'buy.csv')
         spath = os.path.join(self.path, 'sell.csv')
         mopath = os.path.join(self.path, 'market_open.csv')
-        # if os.path.exists(bpath) and os.path.exists(spath):
-        #     return
+        if os.path.exists(bpath) and os.path.exists(spath):
+            return
         df_market_open = pd.read_csv(mopath)
         df_market_open['change'] = df_market_open['intc'] - df_market_open['into']
         df_market_open['chperc'] = (df_market_open['change']/df_market_open['into'])*100

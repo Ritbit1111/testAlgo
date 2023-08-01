@@ -9,10 +9,10 @@ import logging
 
 
 def initialize(today, logger:logging.Logger):
-    try:
-        os.mkdir(os.path.join('apidata', today))
-    except FileExistsError:
-        pass
+    # try:
+    #     os.mkdir(os.path.join('apidata', today))
+    # except FileExistsError:
+    #     pass
     if not is_connected_to_Internet():
         logger.error("Unable to connect to Internet!")
         return None

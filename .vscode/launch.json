@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "test2.py",
+      "name": "test.py",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/test.py",

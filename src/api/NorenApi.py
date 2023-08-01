@@ -972,8 +972,16 @@ class NorenApi:
 
         res = requests.post(url, data=payload)
         reportmsg(res.text)
+        if res.status_code!=200:
+            return []
         # return res.text
         resDict = json.loads(res.text)
+        
+        if type(resDict) == list:                            
+            for i in resDict:
+                i['token'] = token
+            return resDict
+        return []
         
         #error is a json with stat and msg wchih we printed earlier.
         # if type(resDict) != list:                            
