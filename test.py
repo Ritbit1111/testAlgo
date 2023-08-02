@@ -25,6 +25,7 @@ os.makedirs(strat_momentum_path, exist_ok=True)
 ft_data = FTDataService(logger=logger, api=api, path="./apidata")
 
 activeFnOsymbols = ft_data.active_FnO_symbol_list(today)
+#TODO: symbol_token.csv might contain all the equity symbols in the stock market
 df = pd.read_csv("./apidata/NSE/symbol_token.csv")
 delrows = []
 for index, row in df.iterrows():
@@ -51,7 +52,7 @@ EQUITY_SELL_COUNT=5
 df_buy  = pd.read_csv(os.path.join(strat_momentum_path, "buy.csv"), nrows=EQUITY_BUY_COUNT)
 df_sell = pd.read_csv(os.path.join(strat_momentum_path, "sell.csv"), nrows=EQUITY_SELL_COUNT)
 
-BALANCE = 50_00_000
+BALANCE = 20_00_000
 BALANCE_PER_SHARE = 1_00_000
 MARGIN_PER_OPT = 1_00_000
 ob = OrderBook(BALANCE)
@@ -73,7 +74,7 @@ for idx, df in enumerate([df_buy, df_sell]):
             tsym=tsym,
             token=token,
             instrument=Instrument.Equity,
-            ls=1,
+            lotsize=1,
             avgprice=avgprc,
             qty=qty,
             tranType=trantype
@@ -85,54 +86,98 @@ for idx, df in enumerate([df_buy, df_sell]):
 print(ob)
 # Step 2
 # Check for avg hourly gains and buy call options
+EQT_BUY_THRESHOLD = 0.3
+EQT_EXIT_THRESHOLD = 0.3
 OPT_BUY_THRESHOLD = 0.2
 OPT_SELL_THRESHOLD = 0.2
 
-def step2_buyoptions(ordtime):
+def step2_buyoptions(t):
     print("Starting Step 2")
-    st = ordtime - datetime.timedelta(hours=3)
+    st = t - datetime.timedelta(hours=3)
     for idx, df in enumerate([df_buy, df_sell]):
         for _, row in df.iterrows():
             symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
-            hrly_df = ft_data.get_time_price_series(exch, symbol, tsym, st, ordtime, 60)
+            hrly_df = ft_data.get_time_price_series(exch, symbol, tsym, st, t, 60)
             hrly_df["change"] = hrly_df["intc"] - hrly_df["into"]
             hrly_df["perc"] = (hrly_df["change"] / hrly_df["intc"]) * 100
             mean_perc = hrly_df.perc.mean()
             call_put = 1 if idx==0 else -1
             buy_condition = (abs(mean_perc) > OPT_BUY_THRESHOLD) and ( mean_perc * call_put) > 0
             if buy_condition:
-                qp = ft_data.get_quote(ordtime, "NSE", symbol, tsym)
+                qp = ft_data.get_quote(t, "NSE", symbol, tsym)
                 if qp is  None:
                     continue
                 opt_type = OptionType.CALL if call_put == 1 else OptionType.PUT
-                nfo_data = ft_data.get_closest_option_scrip( symbol=symbol, expiry=ordtime, quoteprice=qp, option_type=opt_type,)
+                nfo_data = ft_data.get_closest_option_scrip( symbol=symbol, expiry=t, quoteprice=qp, option_type=opt_type,)
                 tsym_opt, token_opt, ls, sp = ( nfo_data["tsym"], nfo_data["token"], nfo_data["lotsize"], nfo_data["strikeprice"],)
 
                 ft_data.save_day(today, exchange="NFO", symbol=symbol, tsym=tsym_opt)
-                avgprc = ft_data.get_quote(ordtime=ordtime, exchange="NFO", symbol=symbol, tsym=tsym_opt)
+                avgprc = ft_data.get_quote(ordtime=t, exchange="NFO", symbol=symbol, tsym=tsym_opt)
                 if avgprc is None:
                     continue
                 qty = int(MARGIN_PER_OPT / avgprc)
                 qty = (qty // ls) * ls
                 norenordernum = random.randrange(1_000_000, 10_000_000)
-                ord = Order( norenordernum, ordtime=ordtime, sym=symbol, tsym=tsym_opt,
+                ord = Order( norenordernum, ordtime=t, sym=symbol, tsym=tsym_opt,
                     token=token_opt,
                     instrument=Instrument.OptionsStock,
-                    ls=ls,
+                    lotsize=ls,
                     avgprice=avgprc,
                     qty=qty,
                     tranType=TranType.Buy,
                 )
                 if ob.add(ord):
-                    logger.info("Order placed %s, %s, %s", ordtime, tsym, avgprc)
+                    logger.info("Order placed %s, %s, %s", t, tsym, avgprc)
                 else:
-                    logger.error("Unable to place Order  %s, %s, %s", ordtime, tsym, avgprc)
+                    logger.error("Unable to place Order  %s, %s, %s", t, tsym, avgprc)
 
 
 # Step 3
 # Exit both stocks and options when current price is < 0.2% of peak today
-def step3_exit(t, force_exit=False):
-    print("Starting Step 3")
+def exit_equity(t, force_exit=False):
+    for idx, df in enumerate([df_buy, df_sell]):
+        for _, row in df.iterrows():
+            symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
+            quote = ft_data.get_quote(t, exch, symbol, tsym)
+            if quote is None:
+                continue
+            prev_peak = ft_data.get_prev_peak(t, exch, symbol, tsym)
+            if prev_peak is None:
+                continue
+            perc = ((quote - prev_peak) / prev_peak) * 100
+            call_put = 1 if idx==0 else -1
+            if force_exit:
+                exit_condition = True
+            else:
+                exit_condition = (abs(perc) > EQT_EXIT_THRESHOLD) and (perc * call_put) < 0
+            if exit_condition:
+                # Equities : Sell purchased equity and buy shorted ones
+                qty = ob.active_equity_qty(symbol)
+                if qty!=0:
+                    avgprc = ft_data.get_quote(t, "NSE", symbol, tsym)
+                    if avgprc:
+                        norenordernum = random.randrange(1_000_000, 10_000_000)
+                        trantype = TranType.Buy if qty<0 else TranType.Sell
+                        ord = Order(
+                            norenordernum,
+                            ordtime=t,
+                            sym=symbol,
+                            tsym=tsym,
+                            token=token,
+                            instrument=Instrument.Equity,
+                            lotsize=1,
+                            avgprice=avgprc,
+                            qty=qty,
+                            tranType=trantype
+                        )
+                        ob.add(ord)
+                        if ob.add(ord):
+                            logger.info("Order exited %s, %s, %s", t, tsym, avgprc)
+                        else:
+                            logger.error("Unable to exit Order  %s, %s, %s", t, tsym, avgprc)
+                
+def exit_fno(t, force_exit=False):
+    logger.info("Running exit FnO")
     for idx, df in enumerate([df_buy, df_sell]):
         for _, row in df.iterrows():
             symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
@@ -149,27 +194,6 @@ def step3_exit(t, force_exit=False):
             else:
                 exit_condition = (abs(perc) > OPT_SELL_THRESHOLD) and (perc * call_put) < 0
             if exit_condition:
-                # Equities : Sell purchased equity and buy shorted ones
-                qty = ob.active_equity_qty(symbol)
-                if qty!=0:
-                    avgprc = ft_data.get_quote(t, "NSE", symbol, tsym)
-                    if avgprc:
-                        norenordernum = random.randrange(1_000_000, 10_000_000)
-                        trantype = TranType.Buy if qty<0 else TranType.Sell
-                        ord = Order(
-                            norenordernum,
-                            ordtime=ordtime,
-                            sym=symbol,
-                            tsym=tsym,
-                            token=token,
-                            instrument=Instrument.Equity,
-                            ls=1,
-                            avgprice=avgprc,
-                            qty=qty,
-                            tranType=trantype
-                        )
-                        ob.add(ord)
-                
                 # Place order to sell call and put options
                 # Find tsym, qty from order book
                 tsym_qty = ob.active_fno(symbol)
@@ -184,40 +208,56 @@ def step3_exit(t, force_exit=False):
                         ord = Order( norenordernum, ordtime=t, sym=symbol, tsym=tsym_opt,
                             token=token_opt,
                             instrument=Instrument.OptionsStock,
-                            ls=ls,
+                            lotsize=ls,
                             avgprice=avgprc,
                             qty=qty,
                             tranType=TranType.Sell,
                         )
                         if ob.add(ord):
-                            logger.info("Order placed %s, %s, %s", ordtime, tsym, avgprc)
+                            logger.info("Order placed %s, %s, %s", t, tsym, avgprc)
                         else:
-                            logger.error("Unable to place Order  %s, %s, %s", ordtime, tsym, avgprc)
+                            logger.error("Unable to place Order  %s, %s, %s", t, tsym, avgprc)
 
 # Step 4
 # Call step3 in 2 mins interval (if there remains any order to sell)
 # Call step2 hourly
 # Till the market closes
 
-program_st=today.replace(hour=12, minute=15, second=0, microsecond=0)
+program_st=today.replace(hour=9, minute=35, second=0, microsecond=0)
 program_et=today.replace(hour=15, minute=25, second=0, microsecond=0)
 
 call_buy_1=today.replace(hour=12, minute=15, second=0, microsecond=0)
 buy_call_time = [call_buy_1, call_buy_1+datetime.timedelta(hours=1), call_buy_1+datetime.timedelta(hours=2)]
 
+st_exit_fno = today.replace(hour=12, minute=16, second=0, microsecond=0)
+et_exit_fno = today.replace(hour=15, minute=15, second=0)
+exit_fno_time = pd.date_range(start=st_exit_fno, end=et_exit_fno, freq='1min').to_pydatetime()
+
+st_exit_eq = today.replace(hour=9, minute=40, second=0, microsecond=0)
+et_exit_eq = today.replace(hour=15, minute=15, second=0)
+exit_eq_time = pd.date_range(start=st_exit_eq, end=et_exit_eq, freq='5min').to_pydatetime()
+
 for dt in pd.date_range(start=program_st, end=program_et, freq='1min'):
     dt = dt.to_pydatetime()
-    print('-----------------------------------------')
-    print(f'Time : {dt}')
+    logger.info('-----------------------------------------')
+    logger.info('Time : %s', dt)
     if dt in buy_call_time:
         step2_buyoptions(dt)
-    else:
-        step3_exit(dt)
+    if dt in exit_eq_time: 
+        exit_equity(dt)
+    if dt in exit_fno_time:
+        exit_fno(dt)
+    if dt==today.replace(hour=15, minute=20, second=0, microsecond=0):
+        exit_equity(today.replace(hour=15, minute=26, second=0, microsecond=0), force_exit=True)
+    if dt==today.replace(hour=15, minute=25, second=0, microsecond=0):
+        exit_fno(today.replace(hour=15, minute=26, second=0, microsecond=0), force_exit=True)
 
 def squareOff(ob):
-    step3_exit(today.replace(hour=15, minute=26, second=0, microsecond=0), force_exit=True)
+    exit_equity(today.replace(hour=15, minute=26, second=0, microsecond=0), force_exit=True)
+    exit_fno(today.replace(hour=15, minute=26, second=0, microsecond=0), force_exit=True)
 
 squareOff(ob)
 
 print(ob)
-ob.to_csv(os.path.join(strat_momentum_path, f'report_{today_str}.csv'))
+report_path = os.path.join(strat_momentum_path, f'report_{today_str}.csv')
+ob.to_csv(report_path)

@@ -27,21 +27,22 @@ class Order:
     tsym:str
     token:str
     instrument:str
-    ls:int
-    avgprice:float
+    lotsize:int
     qty:int
+    avgprice:float
+    totalprice:float = field(init=False)
     tranType:str = TranType.Buy
     status:str = OrdStatus.New
 
-    @property
-    def totalprice(self):
-        return self.avgprice * self.qty
-
+    def __post_init__(self):
+        self.totalprice = self.avgprice * self.qty
 
 class OrderBook:
-    def __init__(self, balance) -> None:
+    def __init__(self, balance, equity_allotment=None, fno_allotment=None) -> None:
         self.opening_balance = balance
         self._balance = balance
+        self._equity_bal = balance if equity_allotment is None else equity_allotment
+        self._fno_bal = balance if fno_allotment is None else equity_allotment
         self.ob_eq:List[Order]  = []
         self.ob_opt:List[Order] = []
     
@@ -76,8 +77,6 @@ class OrderBook:
         dfop = self.to_df_opt()
         df = pd.concat([dfeq, dfop], axis=0)
         df.to_csv(path, index=None)
-
-
 
     @property
     def balance(self):
