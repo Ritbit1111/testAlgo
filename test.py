@@ -167,10 +167,9 @@ def exit_equity(t, force_exit=False):
                             instrument=Instrument.Equity,
                             lotsize=1,
                             avgprice=avgprc,
-                            qty=qty,
+                            qty=abs(qty),
                             tranType=trantype
                         )
-                        ob.add(ord)
                         if ob.add(ord):
                             logger.info("Order exited %s, %s, %s", t, tsym, avgprc)
                         else:
@@ -210,7 +209,7 @@ def exit_fno(t, force_exit=False):
                             instrument=Instrument.OptionsStock,
                             lotsize=ls,
                             avgprice=avgprc,
-                            qty=qty,
+                            qty=abs(qty),
                             tranType=TranType.Sell,
                         )
                         if ob.add(ord):
