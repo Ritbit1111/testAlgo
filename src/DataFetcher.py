@@ -168,6 +168,8 @@ class FTDataService(DataService):
         )
         self.save_day(start_time, exchange, symbol, tsym)
         df = self.read_time_series(path)
+        if df.empty:
+            return df
         df = df[(df["time"] >= start_time) & (df["time"] < end_time)]
         df = df.resample(rule=f"{interval}min", on="time", origin="start").agg(
             {
@@ -189,10 +191,10 @@ class FTDataService(DataService):
         )
         self.save_day(ordtime, exchange, symbol, tsym)
         df = self.read_time_series(path)
-        df = df[df["time"] < ordtime]
         if df.empty:
             self.logger.error("No data available for : %s at %s", tsym, ordtime)
             return None
+        df = df[df["time"] < ordtime]
         return df.iloc[0]["intc"]
 
     def get_prev_peak(
@@ -205,7 +207,7 @@ class FTDataService(DataService):
         df = self.read_time_series(path)
         df = df[df["time"] < date]
         if df.empty:
-            self.logger.error("No data available for : %s at %s", tsym, ordtime)
+            self.logger.error("No data available for : %s at %s", tsym, date)
             return None
         return df["inth"].max()
 
@@ -219,7 +221,7 @@ class FTDataService(DataService):
         df = self.read_time_series(path)
         df = df[df["time"] < date]
         if df.empty:
-            self.logger.error("No data available for : %s at %s", tsym, ordtime)
+            self.logger.error("No data available for : %s at %s", tsym, date)
             return None
         return df["intl"].min()
 
@@ -244,6 +246,10 @@ class FTDataService(DataService):
             interval=1,
         )
         df = pd.DataFrame(res)
+        if df.empty:
+            self.logger.info("Unable to save data for %s %s on %s ", exchange, tsym, date.strftime("%d-%m-%Y"))
+            return
+
         df["time"] = pd.to_datetime(df["time"], format="%d-%m-%Y %H:%M:%S")
         df = df.drop("stat", axis=1)
         numeric_list = [
@@ -276,7 +282,10 @@ class FTDataService(DataService):
             "v": "int64",
             "oi": "int64",
         }
-        df = pd.read_csv(path, dtype=dtypedict, parse_dates=["time"])
+        try:
+            df = pd.read_csv(path, dtype=dtypedict, parse_dates=["time"])
+        except:
+            df = pd.DataFrame()
         return df
     
     def active_FnO_symbol_list(self, expiry:datetime.datetime, instrument="OPTSTK"):

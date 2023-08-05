@@ -31,11 +31,13 @@ class Order:
     qty:int
     avgprice:float
     totalprice:float = field(init=False)
-    tranType:str = TranType.Buy
+    netprice:float = field(init=False)
+    trantype:str = TranType.Buy
     status:str = OrdStatus.New
 
     def __post_init__(self):
         self.totalprice = self.avgprice * self.qty
+        self.netprice = self.avgprice * self.qty * (1 if self.trantype==TranType.Sell else -1)
 
 class OrderBook:
     def __init__(self, balance, equity_allotment=None, fno_allotment=None) -> None:
@@ -54,8 +56,6 @@ class OrderBook:
         return '\n'.join([bal, pnl, obeq, obfno])
 
     def print_order_list(self, ol):
-        # li = [asdict(ord) for ord in ol]
-        # df = pd.DataFrame(li)
         df = self.to_df(ol)
         if df.empty:
             return "Empty List"
@@ -87,7 +87,7 @@ class OrderBook:
         return self._balance - self.opening_balance
     
     def balcheck(self, ord:Order):
-        if ord.tranType == TranType.Sell:
+        if ord.trantype == TranType.Sell:
             return True
         if ord.totalprice <= self._balance:
             return True
@@ -108,19 +108,19 @@ class OrderBook:
 
     def addFnoOrder(self, ord:Order):
         self.ob_opt.append(ord)
-        self._balance -= ord.totalprice * (1 if ord.tranType==TranType.Buy else -1)
+        self._balance -= ord.totalprice * (1 if ord.trantype==TranType.Buy else -1)
         return True
 
     def addEquityOrder(self, ord:Order):
         self.ob_eq.append(ord)
-        self._balance -= ord.totalprice * (1 if ord.tranType==TranType.Buy else -1)
+        self._balance -= ord.totalprice * (1 if ord.trantype==TranType.Buy else -1)
         return True
     
     def active_equity_qty(self, symbol:str):
         qt_active = 0
         for ord in self.ob_eq:
             if ord.sym==symbol:
-                qt_active += ord.qty * (1 if ord.tranType==TranType.Buy else -1)
+                qt_active += ord.qty * (1 if ord.trantype==TranType.Buy else -1)
         return qt_active
     
     def active_fno(self, symbol):
@@ -128,9 +128,9 @@ class OrderBook:
         for ord in self.ob_opt:
             if ord.sym==symbol:
                 if ord.tsym in tsym_qty:
-                    tsym_qty[ord.tsym] += ord.qty * (1 if ord.tranType==TranType.Buy else -1)
+                    tsym_qty[ord.tsym] += ord.qty * (1 if ord.trantype==TranType.Buy else -1)
                 else:
-                    tsym_qty[ord.tsym] = ord.qty * (1 if ord.tranType==TranType.Buy else -1)
+                    tsym_qty[ord.tsym] = ord.qty * (1 if ord.trantype==TranType.Buy else -1)
 
         drop_zeros=[]
         for ts, qty in tsym_qty.items():

@@ -8,7 +8,7 @@ from src.api.noren import NorenApiPy
 import logging
 
 
-def initialize(today, logger:logging.Logger):
+def initialize(logger:logging.Logger):
     # try:
     #     os.mkdir(os.path.join('apidata', today))
     # except FileExistsError:
