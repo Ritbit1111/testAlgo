@@ -94,6 +94,8 @@ et = datetime.datetime(2023, 8, 4)
 
 # et = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
 days = pd.date_range(start=st, end=et, freq='B')
+excel_path = "./apidata/momentum/reports/onlyFnO.xlsx"
+excel = ExcelWork(excel_path, today)
 for today in days:
     today = today.to_pydatetime()
     gen_xlsx(today)

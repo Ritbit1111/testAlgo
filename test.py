@@ -54,49 +54,57 @@ for today in days:
     fs.add_data()
     fs.filter_data()
 
-    EQUITY_BUY_COUNT=5
-    EQUITY_SELL_COUNT=5
-    df_buy  = pd.read_csv(os.path.join(strat_momentum_path, "buy.csv"), nrows=EQUITY_BUY_COUNT)
-    df_sell = pd.read_csv(os.path.join(strat_momentum_path, "sell.csv"), nrows=EQUITY_SELL_COUNT)
+    CALL_COUNT=5
+    PUT_COUNT=5
+    df_buy  = pd.read_csv(os.path.join(strat_momentum_path, "buy.csv"), nrows=CALL_COUNT)
+    df_sell = pd.read_csv(os.path.join(strat_momentum_path, "sell.csv"), nrows=PUT_COUNT)
 
     BALANCE = 10_00_000
+    EQ_ALLOCATION = 0
+    FnO_ALLOCATION = 10_00_000
+
     BALANCE_PER_SHARE = 50000
-    MARGIN_PER_OPT = 50000
-    ob = OrderBook(BALANCE)
+    MARGIN_PER_OPT = 1_00_000
+    ob = OrderBook(BALANCE, EQ_ALLOCATION, FnO_ALLOCATION)
     # Buy Gainers, sell losers @ 9:30am (equity MIS)
     ordtime = datetime.datetime.strptime(today_str + " 09:31:00", "%d-%m-%Y %H:%M:%S")
-    for idx, df in enumerate([df_buy, df_sell]):
-        exch = "NSE"
-        for _, row in df.iterrows():
-            symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
-            ft_data.save_day(today, exchange=exch, symbol=symbol, tsym=tsym)
-            avgprc = ft_data.get_quote(ordtime, exch, symbol, tsym)
-            qty = int(BALANCE_PER_SHARE / avgprc)
-            norenordernum = random.randrange(1_000_000, 10_000_000)
-            trantype = TranType.Buy if idx == 0 else TranType.Sell
-            ord = Order(
-                norenordernum,
-                ordtime=ordtime,
-                sym=symbol,
-                tsym=tsym,
-                token=token,
-                instrument=Instrument.Equity,
-                lotsize=1,
-                avgprice=avgprc,
-                qty=qty,
-                trantype=trantype
-            )
-            if ob.add(ord):
-                logger.info("Order placed %s, %s, %s", ordtime, tsym, avgprc)
-            else:
-                logger.error("Unable to place Order  %s, %s, %s", ordtime, tsym, avgprc)
-    print(ob)
+    # for idx, df in enumerate([df_buy, df_sell]):
+    #     if idx==0:
+    #         logger.info("Call loop")
+    #     exch = "NSE"
+    #     for _, row in df.iterrows():
+    #         symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
+    #         ft_data.save_day(today, exchange=exch, symbol=symbol, tsym=tsym)
+    #         avgprc = ft_data.get_quote(ordtime, exch, symbol, tsym)
+    #         qty = int(BALANCE_PER_SHARE / avgprc)
+    #         norenordernum = random.randrange(1_000_000, 10_000_000)
+    #         trantype = TranType.Buy if idx == 0 else TranType.Sell
+    #         ord = Order(
+    #             norenordernum,
+    #             ordtime=ordtime,
+    #             sym=symbol,
+    #             exchange=exch,
+    #             tsym=tsym,
+    #             token=token,
+    #             instrument=Instrument.Equity,
+    #             lotsize=1,
+    #             avgprice=avgprc,
+    #             margin=avgprc,
+    #             qty=qty,
+    #             trantype=trantype
+    #         )
+    #         # if ob.add(ord):
+    #         #     logger.info("Order placed %s, %s, %s", ordtime, tsym, avgprc)
+    #         # else:
+    #         #     logger.error("Unable to place Order  %s, %s, %s", ordtime, tsym, avgprc)
+    # print(ob)
     # Step 2
     # Check for avg hourly gains and buy call options
     EQT_BUY_THRESHOLD = 0.3
     EQT_EXIT_THRESHOLD = 0.3
     OPT_BUY_THRESHOLD = 0.2
     OPT_SELL_THRESHOLD = 0.2
+    OPT_EXIT_PREM_THRESHOLD = 10
 
     def step2_buyoptions(t):
         print("Starting Step 2")
@@ -104,7 +112,7 @@ for today in days:
         for idx, df in enumerate([df_buy, df_sell]):
             for _, row in df.iterrows():
                 symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
-                hrly_df = ft_data.get_time_price_series(exch, symbol, tsym, st, t, 60)
+                hrly_df = ft_data.get_time_price_series('NSE', symbol, tsym, st, t, 60)
                 hrly_df["change"] = hrly_df["intc"] - hrly_df["into"]
                 hrly_df["perc"] = (hrly_df["change"] / hrly_df["intc"]) * 100
                 mean_perc = hrly_df.perc.mean()
@@ -125,18 +133,20 @@ for today in days:
                     qty = int(MARGIN_PER_OPT / avgprc)
                     qty = (qty // ls) * ls
                     norenordernum = random.randrange(1_000_000, 10_000_000)
-                    ord = Order( norenordernum, ordtime=t, sym=symbol, tsym=tsym_opt,
+                    ord = Order( norenordernum, ordtime=t, exchange="NFO", sym=symbol, tsym=tsym_opt,
                         token=token_opt,
                         instrument=Instrument.OptionsStock,
                         lotsize=ls,
                         avgprice=avgprc,
+                        margin=(avgprc * qty),
                         qty=qty,
                         trantype=TranType.Buy,
                     )
                     if ob.add(ord):
-                        logger.info("Order placed %s, %s, %s", t, tsym, avgprc)
+                        logger.info("Order placed %s, %s, %s", t, tsym_opt, avgprc)
+                        print(ob)
                     else:
-                        logger.error("Unable to place Order  %s, %s, %s", t, tsym, avgprc)
+                        logger.error("Unable to place Order  %s, %s, %s", t, tsym_opt, avgprc)
 
 
     # Step 3
@@ -145,10 +155,10 @@ for today in days:
         for idx, df in enumerate([df_buy, df_sell]):
             for _, row in df.iterrows():
                 symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
-                quote = ft_data.get_quote(t, exch, symbol, tsym)
+                quote = ft_data.get_quote(t, "NSE", symbol, tsym)
                 if quote is None:
                     continue
-                prev_peak = ft_data.get_prev_peak(t, exch, symbol, tsym)
+                prev_peak = ft_data.get_prev_peak(t, "NSE", symbol, tsym)
                 if prev_peak is None:
                     continue
                 perc = ((quote - prev_peak) / prev_peak) * 100
@@ -169,15 +179,18 @@ for today in days:
                                 norenordernum,
                                 ordtime=t,
                                 sym=symbol,
+                                exchange="NSE",
                                 tsym=tsym,
                                 token=token,
                                 instrument=Instrument.Equity,
                                 lotsize=1,
                                 avgprice=avgprc,
+                                margin=avgprc,
                                 qty=abs(qty),
                                 trantype=trantype
                             )
                             if ob.add(ord):
+                                print(ob)
                                 logger.info("Order exited %s, %s, %s", t, tsym, avgprc)
                             else:
                                 logger.error("Unable to exit Order  %s, %s, %s", t, tsym, avgprc)
@@ -185,44 +198,66 @@ for today in days:
     def exit_fno(t, force_exit=False):
         logger.info("Running exit FnO")
         for idx, df in enumerate([df_buy, df_sell]):
+            if idx==0: 
+                logger.info("Exiting call options")
+            else:
+                logger.info("Exiting put options")
+
             for _, row in df.iterrows():
                 symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
-                quote = ft_data.get_quote(t, exch, symbol, tsym)
+                quote = ft_data.get_quote(t, "NSE", symbol, tsym)
                 if quote is None:
                     continue
-                prev_peak = ft_data.get_prev_peak(t, exch, symbol, tsym)
+                prev_peak = ft_data.get_prev_peak(t, "NSE", symbol, tsym)
                 if prev_peak is None:
                     continue
                 perc = ((quote - prev_peak) / prev_peak) * 100
                 call_put = 1 if idx==0 else -1
                 if force_exit:
-                    exit_condition = True
+                    exit_condition1 = True
                 else:
-                    exit_condition = (abs(perc) > OPT_SELL_THRESHOLD) and (perc * call_put) < 0
-                if exit_condition:
+                    exit_condition1 = (abs(perc) > OPT_SELL_THRESHOLD) and (perc * call_put) < 0
+                if exit_condition1:
                     # Place order to sell call and put options
                     # Find tsym, qty from order book
                     tsym_qty = ob.active_fno(symbol)
                     for tsym_opt, qty in tsym_qty.items():
                         nfo_data = ft_data.get_nfo_info(tsym_opt)
                         token_opt, ls, sp = (nfo_data["token"], nfo_data["lotsize"], nfo_data["strikeprice"])
+                        quote_opt = ft_data.get_quote(t, "NFO", symbol, tsym_opt)
+                        if quote_opt is None:
+                            continue
+                        opt_buy_time = ob.prev_active_ord_time("NFO", symbol)
+                        if call_put == 1:
+                            prev_peak_opt = ft_data.get_prev_peak(t, "NFO", symbol, tsym_opt, from_time=opt_buy_time,)
+                        else:
+                            prev_peak_opt = ft_data.get_prev_trough(t, "NFO", symbol, tsym_opt, from_time=opt_buy_time,)
+                        if prev_peak_opt is None:
+                            continue
+                        perc_opt = ((quote_opt - prev_peak_opt) / prev_peak_opt) * 100
+                        exit_condition2 = (abs(perc_opt) > OPT_EXIT_PREM_THRESHOLD) and (perc_opt * call_put) < 0
+                        if force_exit:
+                            exit_condition2 = True
 
-                        ft_data.save_day(t, exchange="NFO", symbol=symbol, tsym=tsym_opt)
-                        avgprc = ft_data.get_quote(t, "NFO", symbol, tsym_opt)
-                        if avgprc:
-                            norenordernum = random.randrange(1_000_000, 10_000_000)
-                            ord = Order( norenordernum, ordtime=t, sym=symbol, tsym=tsym_opt,
-                                token=token_opt,
-                                instrument=Instrument.OptionsStock,
-                                lotsize=ls,
-                                avgprice=avgprc,
-                                qty=abs(qty),
-                                trantype=TranType.Sell,
-                            )
-                            if ob.add(ord):
-                                logger.info("Order placed %s, %s, %s", t, tsym, avgprc)
-                            else:
-                                logger.error("Unable to place Order  %s, %s, %s", t, tsym, avgprc)
+                        if exit_condition2:
+                            ft_data.save_day(t, exchange="NFO", symbol=symbol, tsym=tsym_opt)
+                            avgprc = ft_data.get_quote(t, "NFO", symbol, tsym_opt)
+                            if avgprc:
+                                norenordernum = random.randrange(1_000_000, 10_000_000)
+                                ord = Order( norenordernum, ordtime=t, exchange="NFO", sym=symbol, tsym=tsym_opt,
+                                    token=token_opt,
+                                    instrument=Instrument.OptionsStock,
+                                    lotsize=ls,
+                                    avgprice=avgprc,
+                                    qty=abs(qty),
+                                    margin=0,
+                                    trantype=TranType.Sell,
+                                )
+                                if ob.add(ord):
+                                    logger.info("Order placed %s, %s, %s", t, tsym, avgprc)
+                                    print(ob)
+                                else:
+                                    logger.error("Unable to place Order  %s, %s, %s", t, tsym, avgprc)
 
     # Step 4
     # Call step3 in 2 mins interval (if there remains any order to sell)
@@ -232,10 +267,11 @@ for today in days:
     program_st=today.replace(hour=9, minute=35, second=0, microsecond=0)
     program_et=today.replace(hour=15, minute=25, second=0, microsecond=0)
 
-    call_buy_1=today.replace(hour=12, minute=15, second=0, microsecond=0)
-    buy_call_time = [call_buy_1, call_buy_1+datetime.timedelta(hours=1), call_buy_1+datetime.timedelta(hours=2)]
+    st_enter_fno = today.replace(hour=10, minute=15, second=0, microsecond=0)
+    et_enter_fno = today.replace(hour=15, minute=15, second=0, microsecond=0)
+    enter_fno_time = pd.date_range(start=st_enter_fno, end=et_enter_fno, freq='60min').to_pydatetime()
 
-    st_exit_fno = today.replace(hour=12, minute=16, second=0, microsecond=0)
+    st_exit_fno = today.replace(hour=9, minute=36, second=0, microsecond=0)
     et_exit_fno = today.replace(hour=15, minute=15, second=0)
     exit_fno_time = pd.date_range(start=st_exit_fno, end=et_exit_fno, freq='1min').to_pydatetime()
 
@@ -247,14 +283,14 @@ for today in days:
         dt = dt.to_pydatetime()
         logger.info('-----------------------------------------')
         logger.info('Time : %s', dt)
-        if dt in buy_call_time:
+        if dt in enter_fno_time:
             step2_buyoptions(dt)
-        if dt in exit_eq_time: 
-            exit_equity(dt)
-        if dt in exit_fno_time:
+        # if dt in exit_eq_time: 
+        #     exit_equity(dt)
+        elif dt in exit_fno_time:
             exit_fno(dt)
-        if dt==today.replace(hour=15, minute=20, second=0, microsecond=0):
-            exit_equity(today.replace(hour=15, minute=26, second=0, microsecond=0), force_exit=True)
+        # if dt==today.replace(hour=15, minute=20, second=0, microsecond=0):
+        #     exit_equity(today.replace(hour=15, minute=26, second=0, microsecond=0), force_exit=True)
         if dt==today.replace(hour=15, minute=25, second=0, microsecond=0):
             exit_fno(today.replace(hour=15, minute=26, second=0, microsecond=0), force_exit=True)
 

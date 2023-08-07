@@ -10,6 +10,7 @@ from pytz import HOUR
 from src.api.noren import NorenApiPy
 import os
 import logging
+from src.orders import Order
 from src.utils.utils import epochIndian, get_epoch_time, get_datetime
 
 
@@ -103,7 +104,7 @@ class FTDataService(DataService):
         df["deltadays"] = df["expiry"] - expiry
         df["deltaprice"] = abs(df["strikeprice"] - quoteprice)
         df = df.nsmallest(1, ["deltadays", "deltaprice"], keep="all")
-        if df.shape[0] == 1:
+        if df.shape[0]>0:
             return df.iloc[0]
         self.logger.error("Unable to find unique scrip")
         print(df)
@@ -162,6 +163,7 @@ class FTDataService(DataService):
                 "This function only works for start and end times of same day"
             )
         start_time = start_time.replace(tzinfo=None)
+        start_time = max(start_time.replace(hour=9, minute=15, second=0, microsecond=0), start_time)
         end_time = end_time.replace(tzinfo=None)
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{start_time.strftime("%d-%m-%Y")}.csv'
@@ -195,24 +197,32 @@ class FTDataService(DataService):
             self.logger.error("No data available for : %s at %s", tsym, ordtime)
             return None
         df = df[df["time"] < ordtime]
+        if df.empty:
+            return None
         return df.iloc[0]["intc"]
 
     def get_prev_peak(
-        self, date: datetime.datetime, exchange: str, symbol: str, tsym: str
+        self, time: datetime.datetime, exchange: str, symbol: str, tsym: str, from_time:datetime.datetime = None,
     ):
         path = os.path.join(
-            self.path, exchange, symbol, f'{tsym}_{date.strftime("%d-%m-%Y")}.csv'
+            self.path, exchange, symbol, f'{tsym}_{time.strftime("%d-%m-%Y")}.csv'
         )
-        self.save_day(date, exchange, symbol, tsym)
+        self.save_day(time, exchange, symbol, tsym)
         df = self.read_time_series(path)
-        df = df[df["time"] < date]
         if df.empty:
-            self.logger.error("No data available for : %s at %s", tsym, date)
+            self.logger.error("No data available for : %s at %s", tsym, time)
+            return None
+        df = df[df["time"] < time]
+        if from_time:
+            df = df[df["time"] >= from_time]
+
+        if df.empty:
+            self.logger.error("No data available for : %s at %s", tsym, time)
             return None
         return df["inth"].max()
 
     def get_prev_trough(
-        self, date: datetime.datetime, exchange: str, symbol: str, tsym: str
+        self, date: datetime.datetime, exchange: str, symbol: str, tsym: str, from_time:datetime.datetime = None,
     ):
         path = os.path.join(
             self.path, exchange, symbol, f'{tsym}_{date.strftime("%d-%m-%Y")}.csv'
@@ -220,6 +230,8 @@ class FTDataService(DataService):
         self.save_day(date, exchange, symbol, tsym)
         df = self.read_time_series(path)
         df = df[df["time"] < date]
+        if from_time:
+            df = df[df["time"] > from_time]
         if df.empty:
             self.logger.error("No data available for : %s at %s", tsym, date)
             return None
@@ -296,6 +308,15 @@ class FTDataService(DataService):
     def update_nfo_symbol_token(self):
         path = os.path.join(self.path, "NFO", "symbol_token.csv")
         update_nfo_symbol_token(path)
+    
+    def get_order_margin(self, ord:Order):
+        try:
+            res = self.api.get_order_margin(exchange=ord.exchange,tradingsymbol=ord.tsym, quantity=ord.qty, price=ord.avgprice, product_type="M", buy_or_sell=ord.trantype, price_type="MKT")
+            return res['ordermargin']
+        except:
+            return None
+
+        
 
 
 def update_nfo_symbol_token(path):
