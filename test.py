@@ -16,7 +16,7 @@ from src.utils.utils import get_epoch_time
 dotenv.load_dotenv()
 logger = get_logger(filename="./log")
 
-st = datetime.datetime(2023, 7, 29)
+st = datetime.datetime(2023, 7, 28)
 et = datetime.datetime(2023, 8, 4)
 
 # et = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
@@ -198,35 +198,23 @@ for today in days:
     def exit_fno(t, force_exit=False):
         logger.info("Running exit FnO")
         for idx, df in enumerate([df_buy, df_sell]):
-            if idx==0: 
-                logger.info("Exiting call options")
-            else:
-                logger.info("Exiting put options")
+            # if idx==0: 
+            #     logger.info("Exiting call options")
+            # else:
+            #     logger.info("Exiting put options")
 
             for _, row in df.iterrows():
                 symbol, tsym, token = row["symbol"], row["tsym"], row["token"]
-                quote = ft_data.get_quote(t, "NSE", symbol, tsym)
-                if quote is None:
-                    continue
-                prev_peak = ft_data.get_prev_peak(t, "NSE", symbol, tsym)
-                if prev_peak is None:
-                    continue
-                perc = ((quote - prev_peak) / prev_peak) * 100
+                tsym_qty = ob.active_fno(symbol)
                 call_put = 1 if idx==0 else -1
-                if force_exit:
-                    exit_condition1 = True
-                else:
-                    exit_condition1 = (abs(perc) > OPT_SELL_THRESHOLD) and (perc * call_put) < 0
-                if exit_condition1:
-                    # Place order to sell call and put options
-                    # Find tsym, qty from order book
-                    tsym_qty = ob.active_fno(symbol)
-                    for tsym_opt, qty in tsym_qty.items():
-                        nfo_data = ft_data.get_nfo_info(tsym_opt)
-                        token_opt, ls, sp = (nfo_data["token"], nfo_data["lotsize"], nfo_data["strikeprice"])
-                        quote_opt = ft_data.get_quote(t, "NFO", symbol, tsym_opt)
-                        if quote_opt is None:
-                            continue
+                for tsym_opt, qty in tsym_qty.items():
+                    nfo_data = ft_data.get_nfo_info(tsym_opt)
+                    token_opt, ls, sp = (nfo_data["token"], nfo_data["lotsize"], nfo_data["strikeprice"])
+
+                    # Exit condition: Track options premium
+                    quote_opt = ft_data.get_quote(t, "NFO", symbol, tsym_opt)
+                    exit_condition2 = False
+                    if quote_opt:
                         opt_buy_time = ob.prev_active_ord_time("NFO", symbol)
                         if call_put == 1:
                             prev_peak_opt = ft_data.get_prev_peak(t, "NFO", symbol, tsym_opt, from_time=opt_buy_time,)
@@ -236,28 +224,40 @@ for today in days:
                             continue
                         perc_opt = ((quote_opt - prev_peak_opt) / prev_peak_opt) * 100
                         exit_condition2 = (abs(perc_opt) > OPT_EXIT_PREM_THRESHOLD) and (perc_opt * call_put) < 0
-                        if force_exit:
-                            exit_condition2 = True
 
-                        if exit_condition2:
-                            ft_data.save_day(t, exchange="NFO", symbol=symbol, tsym=tsym_opt)
-                            avgprc = ft_data.get_quote(t, "NFO", symbol, tsym_opt)
-                            if avgprc:
-                                norenordernum = random.randrange(1_000_000, 10_000_000)
-                                ord = Order( norenordernum, ordtime=t, exchange="NFO", sym=symbol, tsym=tsym_opt,
-                                    token=token_opt,
-                                    instrument=Instrument.OptionsStock,
-                                    lotsize=ls,
-                                    avgprice=avgprc,
-                                    qty=abs(qty),
-                                    margin=0,
-                                    trantype=TranType.Sell,
-                                )
-                                if ob.add(ord):
-                                    logger.info("Order placed %s, %s, %s", t, tsym, avgprc)
-                                    print(ob)
-                                else:
-                                    logger.error("Unable to place Order  %s, %s, %s", t, tsym, avgprc)
+                    quote = ft_data.get_quote(t, "NSE", symbol, tsym)
+
+                    # Exit condition: Track stock price form peak
+                    exit_condition1 = True
+                    if quote:
+                        prev_peak = ft_data.get_prev_peak(t, "NSE", symbol, tsym)
+                        if prev_peak is None:
+                            continue
+                        perc = ((quote - prev_peak) / prev_peak) * 100
+                        exit_condition1 = (abs(perc) > OPT_SELL_THRESHOLD) and (perc * call_put) < 0
+                    if force_exit:
+                        exit_condition1 = True
+                        exit_condition2 = True
+
+                    if exit_condition1 or exit_condition2:
+                        ft_data.save_day(t, exchange="NFO", symbol=symbol, tsym=tsym_opt)
+                        avgprc = ft_data.get_quote(t, "NFO", symbol, tsym_opt)
+                        if avgprc:
+                            norenordernum = random.randrange(1_000_000, 10_000_000)
+                            ord = Order( norenordernum, ordtime=t, exchange="NFO", sym=symbol, tsym=tsym_opt,
+                                token=token_opt,
+                                instrument=Instrument.OptionsStock,
+                                lotsize=ls,
+                                avgprice=avgprc,
+                                qty=abs(qty),
+                                margin=0,
+                                trantype=TranType.Sell,
+                            )
+                            if ob.add(ord):
+                                logger.info("Order placed %s, %s, %s", t, tsym, avgprc)
+                                print(ob)
+                            else:
+                                logger.error("Unable to place Order  %s, %s, %s", t, tsym, avgprc)
 
     # Step 4
     # Call step3 in 2 mins interval (if there remains any order to sell)
@@ -267,7 +267,7 @@ for today in days:
     program_st=today.replace(hour=9, minute=35, second=0, microsecond=0)
     program_et=today.replace(hour=15, minute=25, second=0, microsecond=0)
 
-    st_enter_fno = today.replace(hour=10, minute=15, second=0, microsecond=0)
+    st_enter_fno = today.replace(hour=12, minute=15, second=0, microsecond=0)
     et_enter_fno = today.replace(hour=15, minute=15, second=0, microsecond=0)
     enter_fno_time = pd.date_range(start=st_enter_fno, end=et_enter_fno, freq='60min').to_pydatetime()
 
