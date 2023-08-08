@@ -89,8 +89,8 @@ def gen_xlsx(today):
         )
     # import sys
     # sys.exit(0)
-st = datetime.datetime(2023, 7, 28)
-et = datetime.datetime(2023, 8, 4)
+st = datetime.datetime(year=2023, month=8, day=8)
+et = datetime.datetime(year=2023, month=8, day=8)
 
 # et = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
 days = pd.date_range(start=st, end=et, freq='B')

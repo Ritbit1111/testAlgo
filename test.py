@@ -16,8 +16,8 @@ from src.utils.utils import get_epoch_time
 dotenv.load_dotenv()
 logger = get_logger(filename="./log")
 
-st = datetime.datetime(2023, 7, 28)
-et = datetime.datetime(2023, 8, 4)
+st = datetime.datetime(year=2023, month=8, day=8)
+et = datetime.datetime(year=2023, month=8, day=8)
 
 # et = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
 days = pd.date_range(start=st, end=et, freq='B')
@@ -216,14 +216,15 @@ for today in days:
                     exit_condition2 = False
                     if quote_opt:
                         opt_buy_time = ob.prev_active_ord_time("NFO", symbol)
-                        if call_put == 1:
-                            prev_peak_opt = ft_data.get_prev_peak(t, "NFO", symbol, tsym_opt, from_time=opt_buy_time,)
-                        else:
-                            prev_peak_opt = ft_data.get_prev_trough(t, "NFO", symbol, tsym_opt, from_time=opt_buy_time,)
+                        prev_peak_opt = ft_data.get_prev_peak(t, "NFO", symbol, tsym_opt, from_time=opt_buy_time,)
+                        # if call_put == 1:
+                        #     prev_peak_opt = ft_data.get_prev_peak(t, "NFO", symbol, tsym_opt, from_time=opt_buy_time,)
+                        # else:
+                        #     prev_peak_opt = ft_data.get_prev_trough(t, "NFO", symbol, tsym_opt, from_time=opt_buy_time,)
                         if prev_peak_opt is None:
                             continue
                         perc_opt = ((quote_opt - prev_peak_opt) / prev_peak_opt) * 100
-                        exit_condition2 = (abs(perc_opt) > OPT_EXIT_PREM_THRESHOLD) and (perc_opt * call_put) < 0
+                        exit_condition2 = (abs(perc_opt) > OPT_EXIT_PREM_THRESHOLD) and perc_opt  < 0
 
                     quote = ft_data.get_quote(t, "NSE", symbol, tsym)
 
