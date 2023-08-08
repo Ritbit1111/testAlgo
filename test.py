@@ -16,7 +16,7 @@ from src.utils.utils import get_epoch_time
 dotenv.load_dotenv()
 logger = get_logger(filename="./log")
 
-st = datetime.datetime(year=2023, month=8, day=8)
+st = datetime.datetime(year=2023, month=7, day=27)
 et = datetime.datetime(year=2023, month=8, day=8)
 
 # et = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
